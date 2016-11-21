@@ -1,0 +1,23 @@
+{
+  "name": "christmas-lights",
+  "version": "0.0.0",
+  "description": "Service to control the Linn IT Christmas lights",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --recursive tests/"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "aws-iot-device-sdk": "^1.0.13",
+    "rpi-ws281x-native": "^0.8.1",
+    "uint32": "^0.2.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.1.2",
+    "mockery": "^2.0.0",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0"
+  }
+}
