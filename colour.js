@@ -6,16 +6,24 @@ function intChannel(channel) {
     return Math.floor(channel * 255);
 }
 
-function getUIntValue(color)
-{
-      return uint32.shiftLeft(intChannel(color.red), 16) | uint32.shiftLeft(intChannel(color.green), 8) | uint32.shiftLeft(intChannel(color.blue), 0);
-}
+function constructor() {
+    let red, green, blue;
 
-function constructor(red, green, blue) {
-    this.red = red || 0;
-    this.green = green || 0;
-    this.blue = blue || 0;
-    this.getUIntValue = () => getUIntValue(this);
+    function init(r, g, b) {
+        red = r || 0;
+        green = g || 0;
+        blue = b || 0;
+    }
+
+    if (Array.isArray(arguments[0])) {
+        init(arguments[0][0], arguments[0][1], arguments[0][2]);
+    } else {
+        init(arguments[0], arguments[1], arguments[2]);
+    }
+
+    this.getUIntValue = function getUIntValue() {
+        return uint32.shiftLeft(intChannel(red), 16) | uint32.shiftLeft(intChannel(green), 8) | uint32.shiftLeft(intChannel(blue), 0);
+    }
 }
 
 module.exports = constructor;

@@ -14,6 +14,16 @@ describe("When creating as default", () => {
         expect(result).to.be.eql(0x000000);
     });
 });
+describe("When creating with array", () => {
+    let sut, result;
+    beforeEach(() => {
+        sut = new Colour([1, 0, 1]);
+        result = sut.getUIntValue();
+    });
+    it("Should return 0xff00ff", () => {
+        expect(result).to.be.eql(0xff00ff);
+    });
+});
 describe("When creating as red", () => {
     let sut, result;
     beforeEach(() => {
