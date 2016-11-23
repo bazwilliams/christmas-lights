@@ -14,9 +14,9 @@ process.on('SIGINT', function () {
 let index = 0;
 function frameGenerator(callback) {
     let frames = [
-        [ new Colour(1, 0, 0), new Colour(0, 1, 0), new Colour(0, 0, 1) ],
-        [ new Colour(0, 1, 0), new Colour(0, 0, 1), new Colour(1, 0, 0) ],
-        [ new Colour(0, 0, 1), new Colour(1, 0, 0), new Colour(0, 1, 0) ]
+        [ new Colour('red'), new Colour('green'), new Colour('blue') ],
+        [ new Colour('blue'), new Colour('red'), new Colour('green') ],
+        [ new Colour('green'), new Colour('blue'), new Colour('red') ]
     ];
     callback(null, {
         frame: frames[index],
