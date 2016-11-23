@@ -7,7 +7,7 @@ const black = new Colour();
 
 function constructor(numberOfLeds) {
     let pixelState = new Array(numberOfLeds);
-    let patterns = [];
+    let framebuffer = [];
 
     this.reset = function setReset() {
         init();
@@ -50,27 +50,27 @@ function constructor(numberOfLeds) {
     this.setAnimation = function setAnimation(patternGeneratorFunc) {
         this.patternGenerationInterval = setInterval(() => {
             patternGeneratorFunc((err, pattern) => {
-                patterns.push(pattern);
-                // console.log("Adding: " + patterns.length);
+                this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
             });
-        }, 100);
+        }, 250);
 
         this.animationInterval = setInterval(() => {
-            let pattern = patterns.shift();
-            // console.log("Consuming: " + patterns.length);
-            if (pattern) {
-                this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
+            let frame = framebuffer.shift();
+            // console.log("Consuming: " + framebuffer.length);
+            if (frame) {
+                render(frame);
             }
-        }, 25);
+        }, 100);
     };
 
     this.setPattern = function setPattern(colourArray, repeat, strategy) {
         let frame = createFrame(colourArray, repeat);
         if (!strategy) {
-            render(frame);
+            framebuffer.push(frame);
         } else {
-            strategy(pixelState, frame, render, 1);
+            strategy(pixelState, frame, (frame) => framebuffer.push(frame), 1);
         }
+        // console.log("Pushing: " + framebuffer.length);
     };
 
     init();
