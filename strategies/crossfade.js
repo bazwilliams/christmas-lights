@@ -4,10 +4,8 @@ const Colour = require('../colour');
 
 function process(start, end, renderFrame, inbetweeningSteps) {
     if (!inbetweeningSteps) {
-        renderFrame(start);
         renderFrame(end);
     } else {
-        renderFrame(start);
         renderFrame(calculateInbetweenFrame(start, end));
         renderFrame(end);
     }

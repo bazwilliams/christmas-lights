@@ -2,7 +2,7 @@
 
 const LightStrip = require('./lightStrip');
 const Colour = require('./colour');
-const Crossfade = require('./strategies/crossfade');
+const crossfade = require('./strategies/crossfade');
 
 let christmasLights = new LightStrip(300);
 
@@ -11,15 +11,19 @@ process.on('SIGINT', function () {
     process.nextTick(process.exit);
 });
 
-let frames = [
-    [ new Colour(1, 0, 0), new Colour(0, 1, 0), new Colour(0, 0, 1) ],
-    [ new Colour(0, 1, 0), new Colour(0, 0, 1), new Colour(1, 0, 0) ],
-    [ new Colour(0, 0, 1), new Colour(1, 0, 0), new Colour(0, 1, 0) ]
-];
-
 let index = 0;
-
-setInterval(() => {
-    christmasLights.setPattern(frames[index], true, Crossfade);
+function frameGenerator(callback) {
+    let frames = [
+        [ new Colour(1, 0, 0), new Colour(0, 1, 0), new Colour(0, 0, 1) ],
+        [ new Colour(0, 1, 0), new Colour(0, 0, 1), new Colour(1, 0, 0) ],
+        [ new Colour(0, 0, 1), new Colour(1, 0, 0), new Colour(0, 1, 0) ]
+    ];
+    callback(null, {
+        frame: frames[index],
+        repeat: true,
+        strategy: null
+    });
     index = (index + 1) % frames.length;
-}, 250);
+}
+
+christmasLights.setAnimation(frameGenerator, 200);
