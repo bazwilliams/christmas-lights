@@ -3,7 +3,7 @@
 const Colour = require('../colour');
 
 function process(start, end, renderFrame, inbetweeningSteps) {
-    if (!inbetweeningSteps) {
+    if (!start || !inbetweeningSteps) {
         renderFrame(end);
     } else {
         renderFrame(calculateInbetweenFrame(start, end));

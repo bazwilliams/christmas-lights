@@ -19,7 +19,6 @@ function LightStrip(numberOfLeds) {
     };
 
     function init() {
-        pixelState = createFrame([black], true);
         ws281x.init(numberOfLeds);
         ws281x.setBrightness(0);
     }
@@ -71,7 +70,7 @@ function LightStrip(numberOfLeds) {
         if (!strategy) {
             framebuffer.push(frame);
         } else {
-            strategy(pixelState, frame, (frame) => framebuffer.push(frame), 1);
+            strategy(framebuffer[framebuffer.length - 1], frame, (frame) => framebuffer.push(frame), 1);
         }
         if (!animationInterval) {
             render();

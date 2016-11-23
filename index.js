@@ -21,7 +21,7 @@ function frameGenerator(callback) {
     callback(null, {
         frame: frames[index],
         repeat: true,
-        strategy: null
+        strategy: crossfade
     });
     index = (index + 1) % frames.length;
 }

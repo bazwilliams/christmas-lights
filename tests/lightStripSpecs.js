@@ -13,6 +13,7 @@ describe('Light Strip', () => {
     let LightStrip, ws2812, renderedData, numberOfLeds;
     beforeEach(() => {
         numberOfLeds = 4;
+        renderedData = null;
         ws2812 = {
             reset: sinon.spy(),
             render: sinon.spy((data) => { renderedData = data }),
@@ -66,17 +67,39 @@ describe('Light Strip', () => {
             });
         });
         describe('when setting pattern with a strategy', () => {
-            let strategy;
+            let strategy, expectedPattern, startFrame, endFrame;
             beforeEach(() => {
-                strategy = sinon.spy();
-                sut.setPattern([new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)], true, strategy);
+                expectedPattern = [new Colour(1.0, 1.0, 1.0)];
+                strategy = sinon.spy((start, end, renderFrame) => {
+                    startFrame = start;
+                    endFrame = end;
+                    renderFrame([new Colour(0.5, 0.5, 0.5), new Colour(0.5, 0.5, 0.5), new Colour(0.5, 0.5, 0.5), new Colour(0.5, 0.5, 0.5)]);
+                    renderFrame(end);
+                });
+                sut.setPattern(expectedPattern, true, strategy);
             });
             it('Should call strategy', () => {
                 expect(strategy).to.have.been.called;
-                expect(renderedData[0]).to.be.eql(0x4c99ff);
-                expect(renderedData[1]).to.be.eql(0xff33b2);
-                expect(renderedData[2]).to.be.eql(0x4c99ff);
-                expect(renderedData[3]).to.be.eql(0xff33b2);
+            });
+            it('Start frame should be undefined', () => {
+                expect(startFrame).to.be.undefined;
+            });
+            it('End frame should be correct', () => {
+                expect(endFrame[0].getUIntValue()).to.be.eql(0xffffff);
+            });
+            it('Should render inbetween frame', () => {
+                expect(renderedData[0]).to.be.eql(0x7f7f7f);
+            });
+            describe('and we set another pattern', () => {
+                beforeEach(() => {
+                    sut.setPattern([new Colour(0.0, 0.0, 0.0)], true, strategy);
+                });
+                it('Start frame should be undefined', () => {
+                    expect(startFrame[0].getUIntValue()).to.be.eql(0xffffff);
+                });
+                it('End frame should be correct', () => {
+                    expect(endFrame[0].getUIntValue()).to.be.eql(0x000000);
+                });
             });
         });
         describe('when using animation', (done) => {
