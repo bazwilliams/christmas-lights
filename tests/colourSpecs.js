@@ -69,6 +69,15 @@ describe("Colour", () => {
             expect(result).to.be.eql(0x7f7f7f);
         });
     });
+    describe("When creating by name", () => {
+        beforeEach(() => {
+            sut = new Colour("sienna");
+            result = sut.getUIntValue();
+        });
+        it("Should return 0xa0522d", () => {
+            expect(result).to.be.eql(0xa0522d);
+        });
+    });
     describe("When averaging white and black", () => {
         let col1, col2;
         beforeEach(() => {

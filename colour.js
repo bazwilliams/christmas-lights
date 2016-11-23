@@ -1,6 +1,7 @@
 "use strict";
 
 const uint32 = require('uint32');
+const colourNames = require('color-name');
 
 function intChannel(channel) {
     return Math.floor(channel * 255);
@@ -15,7 +16,10 @@ function Colour() {
         blue = b || 0;
     }
 
-    if (Array.isArray(arguments[0])) {
+    if (typeof arguments[0] === 'string') {
+        let rgb = colourNames[arguments[0]];
+        init(rgb[0]/255, rgb[1]/255, rgb[2]/255);
+    } else if (Array.isArray(arguments[0])) {
         init(arguments[0][0], arguments[0][1], arguments[0][2]);
     } else {
         init(arguments[0], arguments[1], arguments[2]);
