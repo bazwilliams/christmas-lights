@@ -69,4 +69,15 @@ describe("Colour", () => {
             expect(result).to.be.eql(0x7f7f7f);
         });
     });
+    describe("When averaging white and black", () => {
+        let col1, col2;
+        beforeEach(() => {
+            col1 = new Colour(0,0,0);
+            col2 = new Colour(1,1,1);
+            result = Colour.avg(col1, col2).getUIntValue();
+        });
+        it('Should return 0x7f7f7f', () => {
+            expect(result).to.be.eql(0x7f7f7f);
+        });
+    });
 });

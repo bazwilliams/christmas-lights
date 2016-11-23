@@ -6,7 +6,7 @@ function intChannel(channel) {
     return Math.floor(channel * 255);
 }
 
-function constructor() {
+function Colour() {
     let red, green, blue;
 
     function init(r, g, b) {
@@ -23,7 +23,20 @@ function constructor() {
 
     this.getUIntValue = function getUIntValue() {
         return uint32.shiftLeft(intChannel(red), 16) | uint32.shiftLeft(intChannel(green), 8) | uint32.shiftLeft(intChannel(blue), 0);
-    }
+    };
+
+    this.red = () => red;
+
+    this.green = () => green;
+
+    this.blue = () => blue;
 }
 
-module.exports = constructor;
+Colour.avg = function(colour1, colour2) {
+    let r = 0.5 * (colour1.red() + colour2.red());
+    let g = 0.5 * (colour1.green() + colour2.green());
+    let b = 0.5 * (colour1.blue() + colour2.blue());
+    return new Colour(r, g, b);
+};
+
+module.exports = Colour;

@@ -65,6 +65,20 @@ describe('Light Strip', () => {
                 expect(renderedData[3]).to.be.eql(0xff33b2);
             });
         });
+        describe('when setting pattern with a strategy', () => {
+            let strategy;
+            beforeEach(() => {
+                strategy = { process: sinon.spy() };
+                sut.setPattern([new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)], true, strategy);
+            });
+            it('Should call strategy', () => {
+                expect(strategy.process).to.have.been.called;
+                expect(renderedData[0]).to.be.eql(0x4c99ff);
+                expect(renderedData[1]).to.be.eql(0xff33b2);
+                expect(renderedData[2]).to.be.eql(0x4c99ff);
+                expect(renderedData[3]).to.be.eql(0xff33b2);
+            });
+        });
         describe('when reset', () => {
             beforeEach(() => {
                 sut.reset();
