@@ -88,10 +88,12 @@ describe('Light Strip', () => {
                 };
                 patternGeneratorFunc = sinon.spy((cb) => {
                     cb(null, pattern);
-                    sut.clearAnimation();
+                });
+                sut.setAnimation(patternGeneratorFunc, 10);
+                sut.on('render', () => {
+                    sut.reset();
                     done();
                 });
-                sut.setAnimation(patternGeneratorFunc);
             });
             it('Should call the provided pattern generator func', () => {
                 expect(patternGeneratorFunc).to.have.been.called;

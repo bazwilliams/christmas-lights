@@ -1,16 +1,20 @@
 "use strict";
 
 const ws281x = require('rpi-ws281x-native');
-const Colour = require('./colour');
+const EventEmitter = require('events').EventEmitter;
+const util = require('util');
 
+const Colour = require('./colour');
 const black = new Colour();
 
-function constructor(numberOfLeds) {
+function LightStrip(numberOfLeds) {
     let pixelState = new Array(numberOfLeds);
     let framebuffer = [];
+    let animationInterval;
+    let emitter = this;
 
     this.reset = function setReset() {
-        init();
+        this.clearAnimation();
         ws281x.reset();
     };
 
@@ -32,36 +36,34 @@ function constructor(numberOfLeds) {
         return frame;
     }
 
-    function render(frame) {
-        pixelState = frame;
-        let colours = new Uint32Array(numberOfLeds);
-        for(let i=0; i < numberOfLeds; i++) {
-            colours[i] = frame[i].getUIntValue();
+    function render() {
+        let frame = framebuffer.shift();
+        if (frame) {
+            pixelState = frame;
+            let colours = new Uint32Array(numberOfLeds);
+            for(let i=0; i < numberOfLeds; i++) {
+                colours[i] = frame[i].getUIntValue();
+            }
+            ws281x.render(colours);
+            ws281x.setBrightness(24);
+            emitter.emit('render');
         }
-        ws281x.render(colours);
-        ws281x.setBrightness(24);
     }
 
     this.clearAnimation = () => {
         clearInterval(this.patternGenerationInterval);
-        clearInterval(this.animationInterval);
+        framebuffer.length = 0;
     };
 
-    this.setAnimation = function setAnimation(patternGeneratorFunc) {
+    this.setAnimation = function setAnimation(patternGeneratorFunc, delay) {
         this.patternGenerationInterval = setInterval(() => {
             if (framebuffer.length < 50) {
                 patternGeneratorFunc((err, pattern) => {
                     this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
                 });
             }
-        }, 50);
-
-        this.animationInterval = setInterval(() => {
-            let frame = framebuffer.shift();
-            if (frame) {
-                render(frame);
-            }
-        }, 100);
+        }, delay * 0.5);
+        animationInterval = setInterval(render, delay);
     };
 
     this.setPattern = function setPattern(colourArray, repeat, strategy) {
@@ -71,10 +73,13 @@ function constructor(numberOfLeds) {
         } else {
             strategy(pixelState, frame, (frame) => framebuffer.push(frame), 1);
         }
-        // console.log("Pushing: " + framebuffer.length);
+        if (!animationInterval) {
+            render();
+        }
     };
 
     init();
 }
 
-module.exports = constructor;
+util.inherits(LightStrip, EventEmitter);
+module.exports = LightStrip;
