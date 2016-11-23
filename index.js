@@ -18,7 +18,6 @@ function frameGenerator(callback) {
         [ new Colour(0, 1, 0), new Colour(0, 0, 1), new Colour(1, 0, 0) ],
         [ new Colour(0, 0, 1), new Colour(1, 0, 0), new Colour(0, 1, 0) ]
     ];
-
     callback(null, {
         frame: frames[index],
         repeat: true,
