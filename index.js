@@ -2,7 +2,7 @@
 
 const LightStrip = require('./lightStrip');
 const Colour = require('./colour');
-const Crossfade = require('./strategies/crossfade');
+const crossfade = require('./strategies/crossfade');
 
 let christmasLights = new LightStrip(300);
 
@@ -23,7 +23,7 @@ christmasLights.setAnimation((callback) => {
     callback(null, {
         frame: frames[index],
         repeat: true,
-        strategy: Crossfade
+        strategy: crossfade
     });
     index = (index + 1) % frames.length;
 });

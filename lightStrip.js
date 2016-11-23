@@ -14,7 +14,7 @@ function constructor(numberOfLeds) {
     };
 
     function init() {
-        pixelState = createFrame(black, true);
+        pixelState = createFrame([black], true);
         ws281x.init(numberOfLeds);
         ws281x.setBrightness(0);
     }

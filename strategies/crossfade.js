@@ -8,8 +8,6 @@ function process(start, end, renderFrame, inbetweeningSteps) {
         renderFrame(end);
     } else {
         renderFrame(start);
-        console.log(start);
-        console.log(end);
         renderFrame(calculateInbetweenFrame(start, end));
         renderFrame(end);
     }
