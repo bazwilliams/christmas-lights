@@ -68,15 +68,36 @@ describe('Light Strip', () => {
         describe('when setting pattern with a strategy', () => {
             let strategy;
             beforeEach(() => {
-                strategy = { process: sinon.spy() };
+                strategy = sinon.spy();
                 sut.setPattern([new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)], true, strategy);
             });
             it('Should call strategy', () => {
-                expect(strategy.process).to.have.been.called;
+                expect(strategy).to.have.been.called;
                 expect(renderedData[0]).to.be.eql(0x4c99ff);
                 expect(renderedData[1]).to.be.eql(0xff33b2);
                 expect(renderedData[2]).to.be.eql(0x4c99ff);
                 expect(renderedData[3]).to.be.eql(0xff33b2);
+            });
+        });
+        describe('when using animation', (done) => {
+            let pattern, patternGeneratorFunc;
+            beforeEach((done) => {
+                pattern = {
+                    frame: [ new Colour(1,1,1) ],
+                    repeat: true
+                };
+                patternGeneratorFunc = sinon.spy((cb) => {
+                    cb(null, pattern);
+                    sut.clearAnimation();
+                    done();
+                });
+                sut.setAnimation(patternGeneratorFunc);
+            });
+            it('Should call the provided pattern generator func', () => {
+                expect(patternGeneratorFunc).to.have.been.called;
+            });
+            it('Should render the colour from the pattern generator', () => {
+                expect(ws2812.render).to.have.been.called;
             });
         });
         describe('when reset', () => {

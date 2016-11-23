@@ -19,7 +19,11 @@ let frames = [
 
 let index = 0;
 
-setInterval(() => {
-    christmasLights.setPattern(frames[index], true, Crossfade);
+christmasLights.setAnimation((callback) => {
+    callback(null, {
+        frame: frames[index],
+        repeat: true,
+        strategy: Crossfade
+    });
     index = (index + 1) % frames.length;
-}, 250);
+});
