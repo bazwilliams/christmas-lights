@@ -23,7 +23,7 @@ christmasLights.setAnimation((callback) => {
     callback(null, {
         frame: frames[index],
         repeat: true,
-        strategy: crossfade
+        strategy: null
     });
     index = (index + 1) % frames.length;
 });

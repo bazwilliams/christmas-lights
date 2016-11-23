@@ -49,14 +49,15 @@ function constructor(numberOfLeds) {
 
     this.setAnimation = function setAnimation(patternGeneratorFunc) {
         this.patternGenerationInterval = setInterval(() => {
-            patternGeneratorFunc((err, pattern) => {
-                this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
-            });
-        }, 250);
+            if (framebuffer.length < 50) {
+                patternGeneratorFunc((err, pattern) => {
+                    this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
+                });
+            }
+        }, 50);
 
         this.animationInterval = setInterval(() => {
             let frame = framebuffer.shift();
-            // console.log("Consuming: " + framebuffer.length);
             if (frame) {
                 render(frame);
             }
