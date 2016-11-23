@@ -7,6 +7,7 @@ const black = new Colour();
 
 function constructor(numberOfLeds) {
     let pixelState = new Array(numberOfLeds);
+    let patterns = [];
 
     this.reset = function setReset() {
         init();
@@ -41,14 +42,26 @@ function constructor(numberOfLeds) {
         ws281x.setBrightness(24);
     }
 
-    this.clearAnimation = () => clearInterval(this.animationInterval);
+    this.clearAnimation = () => {
+        clearInterval(this.patternGenerationInterval);
+        clearInterval(this.animationInterval);
+    };
 
     this.setAnimation = function setAnimation(patternGeneratorFunc) {
-        this.animationInterval = setInterval(() => {
+        this.patternGenerationInterval = setInterval(() => {
             patternGeneratorFunc((err, pattern) => {
-                this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
+                patterns.push(pattern);
+                // console.log("Adding: " + patterns.length);
             });
         }, 100);
+
+        this.animationInterval = setInterval(() => {
+            let pattern = patterns.shift();
+            // console.log("Consuming: " + patterns.length);
+            if (pattern) {
+                this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
+            }
+        }, 25);
     };
 
     this.setPattern = function setPattern(colourArray, repeat, strategy) {
