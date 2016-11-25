@@ -2,13 +2,13 @@
 
 const Colour = require('../colour');
 
-function process(start, end, renderFrame, inbetweeningSteps) {
-    if (!start || !inbetweeningSteps) {
-        renderFrame(end);
-    } else {
-        renderFrame(calculateInbetweenFrame(start, end));
-        renderFrame(end);
-    }
+function Crossfade() {
+    return function (existingFrame, requestedFrame, renderFrame) {
+        if (existingFrame) {
+            renderFrame(calculateInbetweenFrame(existingFrame, requestedFrame));
+        }
+        renderFrame(requestedFrame);
+    };
 }
 
 function calculateInbetweenFrame(start, end) {
@@ -20,4 +20,4 @@ function calculateInbetweenFrame(start, end) {
     return mid;
 }
 
-module.exports = process;
+module.exports = Crossfade;
