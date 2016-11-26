@@ -8,24 +8,23 @@ chai.use(sinonChai);
 
 const Colour = require('../colour');
 
-describe("Crossfade Strategy", () => {
-    const Crossfade = require('../strategies/crossfade');
+describe("Repeat Strategy", () => {
+    const Repeat = require('../strategies/repeat');
     let result;
-    describe("When using", () => {
+    describe("When creating with a repeat of 4", () => {
         let renderFrame, renderedData, sut;
         beforeEach(() => {
             renderedData = [];
             renderFrame = sinon.spy((data) => { renderedData.push(data); });
-            sut = new Crossfade();
+            sut = new Repeat(4);
         });
-        describe("in default configuration", () => {
+        describe("and using", () => {
             beforeEach(() => {
                 sut([ new Colour(0, 0, 0) ], [ new Colour(1, 1, 1)], renderFrame);
             });
-            it('Should invoke render method', () => {
+            it('Should invoke render method 4 times with provided colour', () => {
                 expect(renderFrame).to.have.been.called;
-                expect(renderedData).to.have.length(2);
-                expect(renderedData[0][0].getUIntValue()).to.be.eql(0x7F7F7F);
+                expect(renderedData).to.have.length(4);
                 expect(renderedData[1][0].getUIntValue()).to.be.eql(0xFFFFFF);
             });
         });
