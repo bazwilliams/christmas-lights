@@ -67,22 +67,23 @@ describe('Light Strip', () => {
             });
         });
         describe('when setting pattern with a strategy', () => {
-            let strategy, expectedPattern, startFrame, endFrame;
+            let strategy, initPattern, startFrame, endFrame;
             beforeEach(() => {
-                expectedPattern = [new Colour(1.0, 1.0, 1.0)];
+                initPattern = [new Colour("black"), new Colour("black"), new Colour("black"), new Colour("black")];
                 strategy = sinon.spy((start, end, renderFrame) => {
                     startFrame = start;
                     endFrame = end;
                     renderFrame([new Colour(0.5, 0.5, 0.5), new Colour(0.5, 0.5, 0.5), new Colour(0.5, 0.5, 0.5), new Colour(0.5, 0.5, 0.5)]);
                     renderFrame(end);
                 });
-                sut.setPattern(expectedPattern, true, strategy);
+                sut.setPattern(initPattern);
+                sut.setPattern([new Colour("white")], true, strategy);
             });
             it('Should call strategy', () => {
                 expect(strategy).to.have.been.called;
             });
-            it('Start frame should be undefined', () => {
-                expect(startFrame).to.be.undefined;
+            it('Start frame should be the init frame', () => {
+                expect(startFrame[0].getUIntValue()).to.be.eql(0x000000);
             });
             it('End frame should be correct', () => {
                 expect(endFrame[0].getUIntValue()).to.be.eql(0xffffff);
@@ -105,10 +106,9 @@ describe('Light Strip', () => {
         describe('when using strategy that takes no frame', () => {
             let strategy, renderedFrame;
             beforeEach(() => {
-                strategy = sinon.spy((existingFrame, requestedFrame, renderFrame) => {
-                    renderFrame(existingFrame);
+                strategy = sinon.spy((existingFrame, requestedFrame, addFrame) => {
+                    addFrame(Array(4).fill(new Colour(0.3, 0.6, 1)));
                 });
-                sut.setPattern([new Colour(0.3, 0.6, 1)]);
                 sut.setPattern(strategy);
             });
             it('Should call strategy', () => {

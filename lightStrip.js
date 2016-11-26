@@ -43,14 +43,16 @@ function LightStrip(numberOfLeds) {
         }
     }
 
+    function existingFrame() {
+        return framebuffer[framebuffer.length - 1] || pixelState;
+    }
+
     function addToBuffer(error, pattern) {
-        let frame = createFrame(pattern.frame, pattern.repeat);
-        if (frame) {
-            if (!pattern.strategy) {
-                framebuffer.push(frame);
-            } else {
-                pattern.strategy(framebuffer[framebuffer.length - 1], frame, (frame) => framebuffer.push(frame), 1);
-            }
+        let requestedFrame = createFrame(pattern.frame, pattern.repeat);
+        if (!pattern.strategy) {
+            framebuffer.push(requestedFrame);
+        } else {
+            pattern.strategy(existingFrame(), requestedFrame, (frame) => framebuffer.push(frame));
         }
     }
 

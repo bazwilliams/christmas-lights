@@ -1,7 +1,7 @@
 "use strict";
 
 function Repeat(repitition) {
-    return (existingFrame, requestedFrame, renderFrame) => Array(repitition).fill(existingFrame).forEach(renderFrame);
+    return (existingFrame, requestedFrame, addFrame) => Array(repitition).fill(existingFrame).forEach(addFrame);
 }
 
 module.exports = Repeat;
