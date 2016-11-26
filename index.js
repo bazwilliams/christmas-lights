@@ -16,17 +16,18 @@ process.on('SIGINT', function () {
 let index = 0;
 function patternGenerator(callback) {
     let pattern = [
-        { frame: [ new Colour('red'), new Colour('black'), new Colour('green'), new Colour('black'), new Colour('blue'), new Colour('black') ], repeat: true },
         { strategy: Repeat(5)},
         { strategy: Shift() }
     ];
     callback(null, pattern[index]);
-    index = (index + 1) % (pattern.length - 1) + 1;
+    index = (index + 1) % pattern.length;
 }
 
 function simulate(frame) {
     console.log(frame.reduce((memo, colour) => `${memo} ${("0x000000" + colour.getUIntValue().toString(16)).substr(-6)}`, ""));
 }
 
-christmasLights.setAnimation(patternGenerator, 200);
-// christmasLights.on('render', simulate);
+christmasLights.setPattern([ new Colour('red'), new Colour('black'), new Colour('green'), new Colour('black'), new Colour('blue'), new Colour('black') ], true);
+christmasLights.setAnimation(patternGenerator, 50);
+
+//christmasLights.on('render', simulate);
