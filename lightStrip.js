@@ -10,7 +10,8 @@ const black = new Colour();
 function LightStrip(numberOfLeds) {
     let pixelState = new Array(numberOfLeds);
     let framebuffer = [];
-    let animationInterval;
+    let renderInterval;
+    let bufferDataInterval;
     let emitter = this;
 
     this.reset = function setReset() {
@@ -45,36 +46,42 @@ function LightStrip(numberOfLeds) {
             }
             ws281x.render(colours);
             ws281x.setBrightness(24);
-            emitter.emit('render');
+            emitter.emit('render', frame);
+        }
+    }
+
+    function addToBuffer(error, pattern) {
+        let frame = createFrame(pattern.frame, pattern.repeat);
+        if (!pattern.strategy) {
+            framebuffer.push(frame);
+        } else {
+            pattern.strategy(framebuffer[framebuffer.length - 1], frame, (frame) => framebuffer.push(frame), 1);
+        }
+        if (!renderInterval) {
+            render();
+        }
+    }
+
+    function bufferData(patternGenerator) {
+        return () => {
+            if (framebuffer.length < 50) {
+                patternGenerator(addToBuffer);
+            }
         }
     }
 
     this.clearAnimation = () => {
-        clearInterval(this.patternGenerationInterval);
+        clearInterval(bufferDataInterval);
         framebuffer.length = 0;
     };
 
-    this.setAnimation = function setAnimation(patternGeneratorFunc, delay) {
-        this.patternGenerationInterval = setInterval(() => {
-            if (framebuffer.length < 50) {
-                patternGeneratorFunc((err, pattern) => {
-                    this.setPattern(pattern.frame, pattern.repeat, pattern.strategy);
-                });
-            }
-        }, delay * 0.5);
-        animationInterval = setInterval(render, delay);
+    this.setAnimation = function setAnimation(patternGenerator, delay) {
+        bufferDataInterval = setInterval(bufferData(patternGenerator), delay * 0.5);
+        renderInterval = setInterval(render, delay);
     };
 
     this.setPattern = function setPattern(colourArray, repeat, strategy) {
-        let frame = createFrame(colourArray, repeat);
-        if (!strategy) {
-            framebuffer.push(frame);
-        } else {
-            strategy(framebuffer[framebuffer.length - 1], frame, (frame) => framebuffer.push(frame), 1);
-        }
-        if (!animationInterval) {
-            render();
-        }
+        addToBuffer(null, { frame: colourArray, repeat: repeat, strategy: strategy });
     };
 
     init();

@@ -13,7 +13,7 @@ process.on('SIGINT', function () {
 });
 
 let index = 0;
-function frameGenerator(callback) {
+function patternGenerator(callback) {
     let pattern = [
         { frame: [ new Colour('red'), new Colour('green'), new Colour('blue') ], repeat: true, strategy: Crossfade() },
         { frame: [ new Colour('red'), new Colour('green'), new Colour('blue') ], repeat: true, strategy: Repeat(20)},
@@ -26,4 +26,5 @@ function frameGenerator(callback) {
     index = (index + 1) % pattern.length;
 }
 
-christmasLights.setAnimation(frameGenerator, 40);
+christmasLights.setAnimation(patternGenerator, 40);
+//christmasLights.on('render', console.log);
