@@ -78,6 +78,15 @@ describe("Colour", () => {
             expect(result).to.be.eql(0xa0522d);
         });
     });
+    describe("When creating using wrong name", () => {
+        beforeEach(() => {
+            sut = new Colour("sdfsdf");
+            result = sut.getUIntValue();
+        });
+        it("Should return 0x000000", () => {
+            expect(result).to.be.eql(0x000000);
+        });
+    });
     describe("When averaging white and black", () => {
         let col1, col2;
         beforeEach(() => {

@@ -38,3 +38,7 @@ jspm_packages
 
 .vscode
 .idea
+
+# Certificates
+certs
+.env
