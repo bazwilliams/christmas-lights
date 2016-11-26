@@ -14,23 +14,16 @@ function LightStrip(numberOfLeds) {
     let bufferDataInterval;
     let emitter = this;
 
-    this.reset = function setReset() {
-        this.clearAnimation();
-        ws281x.reset();
-    };
-
-    function init() {
-        ws281x.init(numberOfLeds);
-        ws281x.setBrightness(0);
-    }
-
     function createFrame(colourArray, repeat) {
-        let frame = new Array(numberOfLeds);
-        for(let i=0; i < numberOfLeds; i++) {
-            if (repeat) {
-                frame[i] = colourArray[i % colourArray.length];
-            } else {
-                frame[i] = colourArray[i]?colourArray[i]:black;
+        let frame = null;
+        if (colourArray && colourArray.length) {
+            frame = new Array(numberOfLeds);
+            for(let i=0; i < numberOfLeds; i++) {
+                if (repeat) {
+                    frame[i] = colourArray[i % colourArray.length];
+                } else {
+                    frame[i] = colourArray[i]?colourArray[i]:black;
+                }
             }
         }
         return frame;
@@ -52,13 +45,12 @@ function LightStrip(numberOfLeds) {
 
     function addToBuffer(error, pattern) {
         let frame = createFrame(pattern.frame, pattern.repeat);
-        if (!pattern.strategy) {
-            framebuffer.push(frame);
-        } else {
-            pattern.strategy(framebuffer[framebuffer.length - 1], frame, (frame) => framebuffer.push(frame), 1);
-        }
-        if (!renderInterval) {
-            render();
+        if (frame) {
+            if (!pattern.strategy) {
+                framebuffer.push(frame);
+            } else {
+                pattern.strategy(framebuffer[framebuffer.length - 1], frame, (frame) => framebuffer.push(frame), 1);
+            }
         }
     }
 
@@ -70,21 +62,35 @@ function LightStrip(numberOfLeds) {
         }
     }
 
+    this.reset = () => {
+        this.clearAnimation();
+        ws281x.reset();
+    };
+
     this.clearAnimation = () => {
         clearInterval(bufferDataInterval);
+        clearInterval(renderInterval);
         framebuffer.length = 0;
     };
 
-    this.setAnimation = function setAnimation(patternGenerator, delay) {
+    this.setAnimation = (patternGenerator, delay) => {
         bufferDataInterval = setInterval(bufferData(patternGenerator), delay * 0.5);
         renderInterval = setInterval(render, delay);
     };
 
-    this.setPattern = function setPattern(colourArray, repeat, strategy) {
-        addToBuffer(null, { frame: colourArray, repeat: repeat, strategy: strategy });
+    this.setPattern = (arg0, repeat, strategy) => {
+        if (Array.isArray(arg0)) {
+            addToBuffer(null, { frame: arg0, repeat: repeat, strategy: strategy });
+        } else {
+            addToBuffer(null, { strategy: arg0 });
+        }
+        if (!renderInterval) {
+            render();
+        }
     };
 
-    init();
+    ws281x.init(numberOfLeds);
+    ws281x.setBrightness(0);
 }
 
 util.inherits(LightStrip, EventEmitter);

@@ -20,7 +20,7 @@ describe("Repeat Strategy", () => {
         });
         describe("and using", () => {
             beforeEach(() => {
-                sut([ new Colour(0, 0, 0) ], [ new Colour(1, 1, 1)], renderFrame);
+                sut([ new Colour(1, 1, 1) ], null, renderFrame);
             });
             it('Should invoke render method 4 times with provided colour', () => {
                 expect(renderFrame).to.have.been.called;

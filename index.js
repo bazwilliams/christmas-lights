@@ -16,11 +16,11 @@ let index = 0;
 function patternGenerator(callback) {
     let pattern = [
         { frame: [ new Colour('red'), new Colour('green'), new Colour('blue') ], repeat: true, strategy: Crossfade() },
-        { frame: [ new Colour('red'), new Colour('green'), new Colour('blue') ], repeat: true, strategy: Repeat(20)},
+        { strategy: Repeat(20)},
         { frame: [ new Colour('blue'), new Colour('red'), new Colour('green') ], repeat: true, strategy: Crossfade() },
-        { frame: [ new Colour('blue'), new Colour('red'), new Colour('green') ], repeat: true, strategy: Repeat(20) },
+        { strategy: Repeat(20) },
         { frame: [ new Colour('green'), new Colour('blue'), new Colour('red') ], repeat: true, strategy: Crossfade() },
-        { frame: [ new Colour('green'), new Colour('blue'), new Colour('red') ], repeat: true, strategy: Repeat(20) }
+        { strategy: Repeat(20) }
     ];
     callback(null, pattern[index]);
     index = (index + 1) % pattern.length;

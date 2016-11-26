@@ -102,6 +102,22 @@ describe('Light Strip', () => {
                 });
             });
         });
+        describe('when using strategy that takes no frame', () => {
+            let strategy, renderedFrame;
+            beforeEach(() => {
+                strategy = sinon.spy((existingFrame, requestedFrame, renderFrame) => {
+                    renderFrame(existingFrame);
+                });
+                sut.setPattern([new Colour(0.3, 0.6, 1)]);
+                sut.setPattern(strategy);
+            });
+            it('Should call strategy', () => {
+                expect(strategy).to.have.been.called;
+            });
+            it('Should render expected frame', () => {
+                expect(renderedData[0]).to.be.eql(0x4c99ff);
+            });
+        });
         describe('when using animation', (done) => {
             let pattern, patternGeneratorFunc;
             beforeEach((done) => {
