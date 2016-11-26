@@ -18,7 +18,11 @@ function Colour() {
 
     if (typeof arguments[0] === 'string') {
         let rgb = colourNames[arguments[0]];
-        init(rgb[0]/255, rgb[1]/255, rgb[2]/255);
+        if (rgb) {
+            init(rgb[0]/255, rgb[1]/255, rgb[2]/255);
+        } else {
+            init();
+        }
     } else if (Array.isArray(arguments[0])) {
         init(arguments[0][0], arguments[0][1], arguments[0][2]);
     } else {

@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+    ThingName:
+        Type: String
+    Certificate:
+        Type: String
+
+Resources:
+    Thing:
+        Type: "AWS::IoT::Thing"
+        Properties:
+            ThingName: !Ref "ThingName"
+
+    ThingPrincipalAttachment:
+        DependsOn: Thing
+        Type: "AWS::IoT::ThingPrincipalAttachment"
+        Properties:
+            ThingName: !Ref ThingName
+            Principal: !Ref Certificate
+
+    ThingPolicy:
+        Type: "AWS::IoT::Policy"
+        Properties:
+            PolicyName: !Join [ "-", [ !Ref ThingName, "policy" ] ]
+            PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    -
+                        Effect: "Allow"
+                        Action: "iot:Connect"
+                        Resource: !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", "client/${iot:ClientId}" ] ]
+                    -
+                        Effect: "Allow"
+                        Action: "iot:Subscribe"
+                        Resource: !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", "topicfilter/*" ] ]
+                    -
+                        Effect: "Allow"
+                        Action: "iot:Receive"
+                        Resource: !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", "topic/*" ] ]
+
+    ThingPolicyAttachment:
+        Type: "AWS::IoT::PolicyPrincipalAttachment"
+        Properties:
+            PolicyName: !Ref ThingPolicy
+            Principal: !Ref Certificate
