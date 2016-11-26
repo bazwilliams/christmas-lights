@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bazwilliams/christmas-lights.svg?branch=master)](https://travis-ci.org/bazwilliams/christmas-lights)
+
 This details the steps to build and run the Linn IT Christmas tree 2016. 
 
 Kit required: 
