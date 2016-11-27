@@ -16,21 +16,18 @@ let device = awsIot.device({
     region: config.awsRegion
 });
 
-let christmasLights = new LightStrip(300);
+let christmasLights = new LightStrip(config.numberOfLeds);
 
-process.on('SIGINT', function () {
-    christmasLights.reset();
-    process.nextTick(process.exit);
-});
-
-let index = 0;
-function patternGenerator(callback) {
-    let pattern = [
-        { strategy: Repeat(5)},
-        { strategy: Shift() }
-    ];
-    callback(null, pattern[index]);
-    index = (index + 1) % pattern.length;
+function* patternGenerator() {
+    let index = 0;
+    while (true) {
+        let pattern = [
+            { strategy: Repeat(5)},
+            { strategy: Shift() }
+        ];
+        yield pattern[index];
+        index = (index + 1) % pattern.length;
+    }
 }
 
 function convert(iotPayload) {
@@ -41,6 +38,11 @@ function convert(iotPayload) {
         }
     }
 }
+
+process.on('SIGINT', function () {
+    christmasLights.reset();
+    process.nextTick(process.exit);
+});
 
 device.on('connect', () => {
     console.log(`connected as ${config.iotThingClientId}`);
@@ -56,10 +58,14 @@ device.on('message', (topic, payload) => {
     }
 });
 
-christmasLights.setPattern([ new Colour('red'), new Colour('black'), new Colour('green'), new Colour('black'), new Colour('blue'), new Colour('black') ], true);
-christmasLights.setAnimation(patternGenerator, 50);
+if (config.debugRender) {
+    function simulate(frame) {
+        process.stdout.clearLine();  // clear current text
+        process.stdout.cursorTo(0);  // move cursor to beginning of line
+        process.stdout.write(frame.reduce((memo, colour) => `${memo} ${("0x000000" + colour.getUIntValue().toString(16)).substr(-6)}`, ""));
+    }
+    christmasLights.on('render', simulate);
+}
 
-//function simulate(frame) {
-//    console.log(frame.reduce((memo, colour) => `${memo} ${("0x000000" + colour.getUIntValue().toString(16)).substr(-6)}`, ""));
-//}
-//christmasLights.on('render', simulate);
+christmasLights.setPattern(convert({ colours: [ 'red', 'black', 'lime', 'black', 'blue', 'black' ], repeat: true }));
+christmasLights.setAnimation(patternGenerator(), config.renderDelay);
