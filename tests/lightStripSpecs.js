@@ -54,6 +54,18 @@ describe('Light Strip', () => {
                 expect(renderedData[3]).to.be.eql(0x000000);
             });
         });
+        describe('when setting pattern using object', () => {
+            beforeEach(() => {
+                sut.setPattern({ frame: [new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)] });
+            });
+            it('Should render two colours', () => {
+                expect(ws2812.render).to.have.been.called;
+                expect(renderedData[0]).to.be.eql(0x4c99ff);
+                expect(renderedData[1]).to.be.eql(0xff33b2);
+                expect(renderedData[2]).to.be.eql(0x000000);
+                expect(renderedData[3]).to.be.eql(0x000000);
+            });
+        });
         describe('when setting repeating pattern', () => {
             beforeEach(() => {
                 sut.setPattern([new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)], true);
@@ -119,23 +131,24 @@ describe('Light Strip', () => {
             });
         });
         describe('when using animation', (done) => {
-            let pattern, patternGeneratorFunc;
+            let pattern, patternGeneratorFunc, generatorCalled;
             beforeEach((done) => {
                 pattern = {
                     frame: [ new Colour(1,1,1) ],
                     repeat: true
                 };
-                patternGeneratorFunc = sinon.spy((cb) => {
-                    cb(null, pattern);
-                });
-                sut.setAnimation(patternGeneratorFunc, 10);
+                patternGeneratorFunc = function* testGenerator() {
+                    generatorCalled = true;
+                    yield pattern;
+                }
+                sut.setAnimation(patternGeneratorFunc(), 10);
                 sut.on('render', () => {
                     sut.reset();
                     done();
                 });
             });
             it('Should call the provided pattern generator func', () => {
-                expect(patternGeneratorFunc).to.have.been.called;
+                expect(generatorCalled).to.be.true;
             });
             it('Should render the colour from the pattern generator', () => {
                 expect(ws2812.render).to.have.been.called;

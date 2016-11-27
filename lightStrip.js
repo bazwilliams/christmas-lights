@@ -47,7 +47,7 @@ function LightStrip(numberOfLeds) {
         return framebuffer[framebuffer.length - 1] || pixelState;
     }
 
-    function addToBuffer(error, pattern) {
+    function addToBuffer(pattern) {
         let requestedFrame = createFrame(pattern.frame, pattern.repeat);
         if (!pattern.strategy) {
             framebuffer.push(requestedFrame);
@@ -59,7 +59,10 @@ function LightStrip(numberOfLeds) {
     function bufferData(patternGenerator) {
         return () => {
             if (framebuffer.length < 50) {
-                patternGenerator(addToBuffer);
+                let pattern = patternGenerator.next().value;
+                if (pattern) {
+                    addToBuffer(pattern);
+                }
             }
         }
     }
@@ -81,10 +84,12 @@ function LightStrip(numberOfLeds) {
     };
 
     this.setPattern = (arg0, repeat, strategy) => {
-        if (Array.isArray(arg0)) {
-            addToBuffer(null, { frame: arg0, repeat: repeat, strategy: strategy });
+        if (arg0.frame && Array.isArray(arg0.frame)) {
+            addToBuffer(arg0);
+        } else if (Array.isArray(arg0)) {
+            addToBuffer({ frame: arg0, repeat: repeat, strategy: strategy });
         } else {
-            addToBuffer(null, { strategy: arg0 });
+            addToBuffer({ strategy: arg0 });
         }
         if (!renderInterval) {
             render();

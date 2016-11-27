@@ -30,6 +30,21 @@ let cfg = config({
         env      : 'iotThingClientId',
         type     : 'string',
         required : true
+    },
+    numberOfLeds: {
+        env      : 'numberOfLeds',
+        type     : 'integer',
+        required : true
+    },
+    renderDelay: {
+        env      : 'renderDelay',
+        type     : 'integer',
+        required : true
+    },
+    debugRender: {
+        env      : 'debugRender',
+        type    : 'boolean',
+        default : false
     }
 });
 
