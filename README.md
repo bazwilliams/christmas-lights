@@ -12,6 +12,6 @@ Kit required:
 
 Deployment:
 
-1. Obtain a certificate for your Thing and register it with AWS IOT. I used the one-click certificate generation within AWS IOT. Download the certifcates and record the Arn.
+1. Obtain a certificate for your Thing and register it with AWS IOT. `./generateCertificate.sh` will create a certificate, private and public key. It will output the Arn of the certificate which you need to reference for the cloudformation stack. You should download the root ca certificate from Amazon. 
 2. Store the certificates in the `/certs` folder and the Arn in `/certs/arn.txt`
 3. `aws cloudformation create-stack --stack-name it-christmas-tree --template-body file://./aws/cloudformation.yaml --parameters ParameterKey=ThingName,ParameterValue=it-christmas-tree ParameterKey=Certificate,ParameterValue=\`cat certs/arn.txt\``

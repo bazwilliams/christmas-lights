@@ -4,11 +4,9 @@ const config = require('./config');
 const awsIot = require('aws-iot-device-sdk');
 const LightStrip = require('./lightStrip');
 const Colour = require('./colour');
-const Crossfade = require('./strategies/crossfade');
-const Repeat = require('./strategies/repeat');
-const Shift = require('./strategies/shift');
+const chaserPattern = require('./generators/chaser');
 
-let device = awsIot.device({
+const thingShadows = awsIot.thingShadow({
     keyPath: config.iotThingKeyPath,
     certPath: config.iotThingCertPath,
     caPath: config.iotCaPath,
@@ -16,27 +14,38 @@ let device = awsIot.device({
     region: config.awsRegion
 });
 
-let christmasLights = new LightStrip(config.numberOfLeds);
+const christmasLights = new LightStrip(config.numberOfLeds);
 
-function* patternGenerator() {
-    let index = 0;
-    while (true) {
-        let pattern = [
-            { strategy: Repeat(5)},
-            { strategy: Shift() }
-        ];
-        yield pattern[index];
-        index = (index + 1) % pattern.length;
+let currentToken;
+let localState = { colours: [ "black" ], repeat: true };
+
+function convert(state) {
+    return {
+        frame: state.colours.map((colourName) => new Colour(colourName)),
+        repeat: state.repeat
     }
 }
 
-function convert(iotPayload) {
-    if (Array.isArray(iotPayload.colours)) {
-        return {
-            frame: iotPayload.colours.map((colourName) => new Colour(colourName)),
-            repeat: iotPayload.repeat
+function updateThingShadow() {
+    thingShadows.update(`${config.iotThingClientId}`, { state: { reported: localState, desired: null }});
+}
+
+function updateLocalState(state) {
+    let dirty = false;
+    if (state) {
+        if (Array.isArray(state.colours)) {
+            localState.colours = state.colours;
+            dirty = true;
+        }
+        if (typeof state.repeat === 'boolean') {
+            localState.repeat = state.repeat;
+            dirty = true;
         }
     }
+    if (dirty) {
+        christmasLights.setPattern(convert(localState));
+    }
+    updateThingShadow();
 }
 
 process.on('SIGINT', function () {
@@ -44,18 +53,25 @@ process.on('SIGINT', function () {
     process.nextTick(process.exit);
 });
 
-device.on('connect', () => {
-    console.log(`connected as ${config.iotThingClientId}`);
-    device.subscribe(config.iotThingClientId);
+thingShadows.register(`${config.iotThingClientId}`, {}, () => {
+    currentToken = thingShadows.get(`${config.iotThingClientId}`);
 });
 
-device.on('message', (topic, payload) => {
-    let pattern = convert(JSON.parse(payload));
-    if (pattern) {
-        christmasLights.setPattern(pattern.frame, pattern.repeat, pattern.strategys);
-    } else {
-        console.error(`ConversionError: ${payload}`);
+thingShadows.on('status', (thingName, stat, clientToken, stateObject) => {
+    if (clientToken === currentToken) {
+        if (stat === 'rejected') {
+            console.log(`${JSON.stringify(stateObject)}`);
+            console.log("Creating new shadow");
+            updateThingShadow();
+        } else if (stat === 'accepted') {
+            updateLocalState(stateObject.state.reported);
+            updateLocalState(stateObject.state.desired);
+        }
     }
+});
+
+thingShadows.on('delta', (thingName, stateObject) => {
+    updateLocalState(stateObject.state);
 });
 
 if (config.debugRender) {
@@ -67,5 +83,5 @@ if (config.debugRender) {
     christmasLights.on('render', simulate);
 }
 
-christmasLights.setPattern(convert({ colours: [ 'red', 'black', 'lime', 'black', 'blue', 'black' ], repeat: true }));
-christmasLights.setAnimation(patternGenerator(), config.renderDelay);
+christmasLights.setPattern(convert(localState));
+christmasLights.setAnimation(chaserPattern(), config.renderDelay);
