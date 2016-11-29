@@ -37,7 +37,21 @@ Resources:
                     -
                         Effect: "Allow"
                         Action: "iot:Receive"
-                        Resource: !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", "topic/*" ] ]
+                        Resource:
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/get/accepted" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/get/rejected" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/update/accepted" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/update/delta" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/update/documents" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/update/rejected" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/delete/accepted" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/delete/rejected" ] ] ] ]
+                    -
+                        Effect: "Allow"
+                        Action: "iot:Publish"
+                        Resource:
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/get" ] ] ] ]
+                            - !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "topic/$aws/things", !Ref ThingName, "shadow/update" ] ] ] ]
 
     ThingPolicyAttachment:
         Type: "AWS::IoT::PolicyPrincipalAttachment"
