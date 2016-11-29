@@ -59,19 +59,26 @@ thingShadows.register(`${config.iotThingClientId}`, {}, () => {
 
 thingShadows.on('status', (thingName, stat, clientToken, stateObject) => {
     if (clientToken === currentToken) {
-        if (stat === 'rejected') {
-            console.log(`${JSON.stringify(stateObject)}`);
-            console.log("Creating new shadow");
+        if (stat === 'rejected' && stateObject.code === 404) {
             updateThingShadow();
         } else if (stat === 'accepted') {
             updateLocalState(stateObject.state.reported);
             updateLocalState(stateObject.state.desired);
+        } else {
+            console.err(JSON.stringify(stateObject));
         }
     }
 });
 
 thingShadows.on('delta', (thingName, stateObject) => {
     updateLocalState(stateObject.state);
+});
+
+thingShadows.on('foreignStateChange', (thingName, operation, stateObject) => {
+    if (operation === 'delete') {
+        christmasLights.reset();
+        process.nextTick(process.exit);
+    }
 });
 
 if (config.debugRender) {
