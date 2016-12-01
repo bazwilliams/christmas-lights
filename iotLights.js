@@ -3,6 +3,7 @@
 const config = require('./config');
 const awsIot = require('aws-iot-device-sdk');
 const Colour = require('./colour');
+const chaserPattern = require('./generators/chaser');
 
 const thingShadows = awsIot.thingShadow({
     keyPath: config.iotThingKeyPath,
@@ -14,11 +15,22 @@ const thingShadows = awsIot.thingShadow({
 
 function init(christmasLights) {
     let currentToken;
-    
-    let localState = { colours: [ "black" ], repeat: true }
-    
+    let localState = {};
+    let lightStripReset = true;
+
+    function fetchThingShadow() {
+        currentToken = thingShadows.get(`${config.iotThingClientId}`);
+    }
+
     function updateThingShadow() {
         thingShadows.update(`${config.iotThingClientId}`, { state: { reported: localState, desired: null }});
+    }
+
+    function createThingShadow() {
+        localState = { animation: 'off' };
+        updateLocalState();
+        updateThingShadow();
+        fetchThingShadow();
     }
 
     function convert(state) {
@@ -39,14 +51,30 @@ function init(christmasLights) {
                 localState.repeat = state.repeat;
                 dirty = true;
             }
+            if (state.animation) {
+                localState.animation = state.animation;
+                dirty = true;
+            }
         }
-        if (dirty) {
-            christmasLights.setPattern(convert(localState));
+        if (localState.animation && localState.animation !== 'off' && Array.isArray(localState.colours)) {
+            if (dirty) {
+                if (lightStripReset) {
+                    christmasLights.init();
+                    lightStripReset = false;
+                }
+                christmasLights.setPattern(convert(localState));
+                christmasLights.setAnimation(chaserPattern(), config.renderDelay);
+            }
+        } else {
+            if (!lightStripReset) {
+                christmasLights.reset();
+                lightStripReset = true;
+            }
         }
     }
 
     thingShadows.register(`${config.iotThingClientId}`, {}, () => {
-        currentToken = thingShadows.get(`${config.iotThingClientId}`);
+        fetchThingShadow();
     });
 
     thingShadows.on('delta', (thingName, stateObject) => {
@@ -57,20 +85,20 @@ function init(christmasLights) {
     thingShadows.on('status', (thingName, stat, clientToken, stateObject) => {
         if (clientToken === currentToken) {
             if (stat === 'rejected' && stateObject.code === 404) {
-                updateThingShadow();
+                createThingShadow();
             } else if (stat === 'accepted') {
                 updateLocalState(stateObject.state.reported);
                 updateLocalState(stateObject.state.desired);
                 updateThingShadow();
             } else {
-                console.err(JSON.stringify(stateObject));
+                console.err(`${thingName}: ${stat}: ${clientToken} ${JSON.stringify(stateObject)}`);
             }
         }
     });
 
     thingShadows.on('foreignStateChange', (thingName, operation, stateObject) => {
         if (operation === 'delete') {
-            christmasLights.reset();
+            createThingShadow();
         }
     });
 }

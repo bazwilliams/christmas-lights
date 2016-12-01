@@ -67,9 +67,15 @@ function LightStrip(numberOfLeds) {
         }
     }
 
+    this.init = () => {    
+        ws281x.init(numberOfLeds);
+        ws281x.setBrightness(0);
+    };
+
     this.reset = () => {
         this.clearAnimation();
         ws281x.reset();
+        emitter.emit('reset');
     };
 
     this.clearAnimation = () => {
@@ -95,9 +101,6 @@ function LightStrip(numberOfLeds) {
             render();
         }
     };
-
-    ws281x.init(numberOfLeds);
-    ws281x.setBrightness(0);
 }
 
 util.inherits(LightStrip, EventEmitter);

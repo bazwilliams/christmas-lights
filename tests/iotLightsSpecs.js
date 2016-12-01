@@ -43,6 +43,8 @@ describe('AWS Iot Interface', () => {
         beforeEach(() => {
             lightstrip = {
                 setPattern: sinon.spy(),
+                setAnimation: sinon.spy(),
+                init: sinon.spy(),
                 reset: sinon.spy()
             }
             sut.init(lightstrip);
@@ -57,35 +59,67 @@ describe('AWS Iot Interface', () => {
             beforeEach(() => {
                 eventHandlers.status('testThing', 'rejected', 'clientToken', { code: 404 });
             });
-            it('Should update thing shadow with a default settings', () => {
-                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { colours: [ "black" ], repeat: true }, desired: null } });
+            it('Should update thing shadow with an off settings', () => {
+                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'off' }, desired: null}});
             });
         });
-        describe('when delta event recieved', () => {
-            let deltaDocument;
+        describe('when status event accepted with correct token with no animation', () => {
+            let shadowDocument;
             beforeEach(() => {
-                deltaDocument = {
+                shadowDocument = {
                     state: {
-                        colours: [ "yellow" ]
+                        reported: {
+                            colours: ['black'],
+                            animation: 'off'
+                        }
                     }
                 };
-                eventHandlers.delta('testThing', deltaDocument);
+                eventHandlers.status('testThing', 'accepted', 'clientToken', shadowDocument);
             });
-            it('Should set the state of the lightStrip', () => {
-                expect(lightstrip.setPattern).to.have.been.called;
-                expect(lightstrip.setPattern.args[0][0].frame[0].getUIntValue()).to.be.eql(0xFFFF00);
-                expect(lightstrip.setPattern.args[0][0].repeat).to.be.true;
+            it('Should not set the state of the lightStrip', () => {
+                expect(lightstrip.setPattern).not.to.have.been.called;
             });
             it('Should update thing shadow with a confirmed state', () => {
-                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { colours: [ "yellow" ], repeat: true }, desired: null } });
+                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { colours: ['black'], animation: 'off' }, desired: null } });
             });
-        });
-        describe('when thing shadow is deleted', () => {
-            beforeEach(() => {
-                eventHandlers.foreignStateChange('testThing', 'delete', {});
-            });
-            it('Should reset lightstrip', () => {
-                expect(lightstrip.reset).to.have.been.called;
+            describe('and the animation is set to chase using a delta', () => {
+                beforeEach(() => {
+                    let deltaDocument = {
+                        state: {
+                            colours: [ "yellow" ],
+                            repeat: true,
+                            animation: 'chase'
+                        }
+                    };
+                    eventHandlers.delta('testThing', deltaDocument);
+                });
+                it('Should initialise lightstrip', () => {
+                    expect(lightstrip.init).to.have.been.called;
+                });
+                it('Should set the state of the lightStrip', () => {
+                    expect(lightstrip.setPattern).to.have.been.called;
+                    expect(lightstrip.setPattern.args[0][0].frame[0].getUIntValue()).to.be.eql(0xFFFF00);
+                    expect(lightstrip.setPattern.args[0][0].repeat).to.be.true;
+                });
+                it('Should update thing shadow with a confirmed state', () => {
+                    expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'chase', colours: [ "yellow" ], repeat: true }, desired: null } });
+                });
+                describe('and the animation is stopped using a delta', () => {
+                    beforeEach(() => {
+                        let deltaDocument = {
+                            state: {
+                                animation: 'off'
+                            }
+                        };
+                        eventHandlers.delta('testThing', deltaDocument);
+                    });
+                    it('Should reset the lightStrip', () => {
+                        expect(lightstrip.reset).to.have.been.called;
+                    });
+                    it('Should update thing shadow with a confirmed state', () => {
+                        expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'off', colours: [ "yellow" ], repeat: true }, desired: null } });
+                    });
+                });
             });
         });
         describe('when status event accepted with correct token', () => {
@@ -95,7 +129,8 @@ describe('AWS Iot Interface', () => {
                     state: {
                         reported: {
                             colours: [ "red" ],
-                            repeat: true
+                            repeat: true,
+                            animation: 'chase'
                         }
                     }
                 };
@@ -107,7 +142,37 @@ describe('AWS Iot Interface', () => {
                 expect(lightstrip.setPattern.args[0][0].repeat).to.be.true;
             });
             it('Should update thing shadow with a confirmed state', () => {
-                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { colours: [ "red" ], repeat: true }, desired: null } });
+                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'chase', colours: [ "red" ], repeat: true }, desired: null } });
+            });
+            describe('when delta event recieved', () => {
+                let deltaDocument;
+                beforeEach(() => {
+                    deltaDocument = {
+                        state: {
+                            colours: [ "yellow" ]
+                        }
+                    };
+                    eventHandlers.delta('testThing', deltaDocument);
+                });
+                it('Should set the state of the lightStrip', () => {
+                    expect(lightstrip.setPattern).to.have.been.called;
+                    expect(lightstrip.setPattern.args[1][0].frame[0].getUIntValue()).to.be.eql(0xFFFF00);
+                    expect(lightstrip.setPattern.args[1][0].repeat).to.be.true;
+                });
+                it('Should update thing shadow with a confirmed state', () => {
+                    expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'chase', colours: [ "yellow" ], repeat: true }, desired: null } });
+                });
+            });
+            describe('when thing shadow is deleted', () => {
+                beforeEach(() => {
+                    eventHandlers.foreignStateChange('testThing', 'delete', {});
+                });
+                it('Should reset lightstrip', () => {
+                    expect(lightstrip.reset).to.have.been.called;
+                });
+                it('Should update thing shadow with an off settings', () => {
+                    expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'off' }, desired: null}});
+                });
             });
         });
         describe('when status event accepted with outstanding delta and correct token', () => {
@@ -117,7 +182,8 @@ describe('AWS Iot Interface', () => {
                     state: {
                         reported: {
                             colours: [ "red" ],
-                            repeat: true
+                            repeat: true,
+                            animation: 'chase'
                         },
                         desired: {
                             colours: [ "blue" ],
@@ -133,7 +199,7 @@ describe('AWS Iot Interface', () => {
                 expect(lightstrip.setPattern.args[1][0].repeat).to.be.false;
             });
             it('Should update thing shadow with a confirmed state', () => {
-                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { colours: [ "blue" ], repeat: false }, desired: null } });
+                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'chase', colours: [ "blue" ], repeat: false }, desired: null } });
             });
         });
         describe('when status event accepted with partial delta and correct token', () => {
@@ -143,7 +209,8 @@ describe('AWS Iot Interface', () => {
                     state: {
                         reported: {
                             colours: [ "red" ],
-                            repeat: true
+                            repeat: true,
+                            animation: 'chase'
                         },
                         desired: {
                             repeat: false
@@ -158,7 +225,7 @@ describe('AWS Iot Interface', () => {
                 expect(lightstrip.setPattern.args[1][0].repeat).to.be.false;
             });
             it('Should update thing shadow with a confirmed state', () => {
-                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { colours: [ "red" ], repeat: false }, desired: null } });
+                expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'chase', colours: [ "red" ], repeat: false }, desired: null } });
             });
         });
     });

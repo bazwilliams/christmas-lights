@@ -31,10 +31,11 @@ describe('Light Strip', () => {
         mockery.deregisterAll();
         mockery.disable();
     });
-    describe('When creating', () => {
+    describe('When creating and initialising', () => {
         let sut;
         beforeEach(() => {
             sut = new LightStrip(numberOfLeds);
+            sut.init();
         });
         it('Should initialise strip', () => {
             expect(ws2812.init).to.have.been.calledWith(numberOfLeds);

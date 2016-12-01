@@ -2,11 +2,9 @@
 
 const config = require('./config');
 const iotLights = require('./iotLights');
-const chaserPattern = require('./generators/chaser');
 const LightStrip = require('./lightStrip');
-const christmasLights = new LightStrip(config.numberOfLeds);
-const Colour = require('./colour');
 
+const christmasLights = new LightStrip(config.numberOfLeds);
 iotLights.init(christmasLights);
 
 process.on('SIGINT', function () {
@@ -21,7 +19,5 @@ if (config.debugRender) {
         process.stdout.write(frame.reduce((memo, colour) => `${memo} ${("0x000000" + colour.getUIntValue().toString(16)).substr(-6)}`, ""));
     }
     christmasLights.on('render', simulate);
+    christmasLights.on('reset', () => console.log('reset'));
 }
-
-christmasLights.setPattern([new Colour("black")]);
-christmasLights.setAnimation(chaserPattern(), config.renderDelay);
