@@ -16,7 +16,6 @@ const thingShadows = awsIot.thingShadow({
 function init(christmasLights) {
     let currentToken;
     let localState = {};
-    let lightStripReset = true;
 
     function fetchThingShadow() {
         currentToken = thingShadows.get(`${config.iotThingClientId}`);
@@ -58,18 +57,11 @@ function init(christmasLights) {
         }
         if (localState.animation && localState.animation !== 'off' && Array.isArray(localState.colours)) {
             if (dirty) {
-                if (lightStripReset) {
-                    christmasLights.init();
-                    lightStripReset = false;
-                }
                 christmasLights.setPattern(convert(localState));
                 christmasLights.setAnimation(chaserPattern(), config.renderDelay);
             }
         } else {
-            if (!lightStripReset) {
-                christmasLights.reset();
-                lightStripReset = true;
-            }
+            christmasLights.reset();
         }
     }
 

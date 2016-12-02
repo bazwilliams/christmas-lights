@@ -44,7 +44,6 @@ describe('AWS Iot Interface', () => {
             lightstrip = {
                 setPattern: sinon.spy(),
                 setAnimation: sinon.spy(),
-                init: sinon.spy(),
                 reset: sinon.spy()
             }
             sut.init(lightstrip);
@@ -92,9 +91,6 @@ describe('AWS Iot Interface', () => {
                         }
                     };
                     eventHandlers.delta('testThing', deltaDocument);
-                });
-                it('Should initialise lightstrip', () => {
-                    expect(lightstrip.init).to.have.been.called;
                 });
                 it('Should set the state of the lightStrip', () => {
                     expect(lightstrip.setPattern).to.have.been.called;

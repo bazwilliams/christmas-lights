@@ -35,17 +35,16 @@ describe('Light Strip', () => {
         let sut;
         beforeEach(() => {
             sut = new LightStrip(numberOfLeds);
-            sut.init();
         });
-        it('Should initialise strip', () => {
-            expect(ws2812.init).to.have.been.calledWith(numberOfLeds);
-        });
-        it('Should set brightness to 0', () => {
-            expect(ws2812.setBrightness).to.have.been.calledWith(0);
+        it('Should not initialise strip', () => {
+            expect(ws2812.init).not.to.have.been.called;
         });
         describe('when setting pattern', () => {
             beforeEach(() => {
                 sut.setPattern([new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)]);
+            });
+            it('Should initialise strip', () => {
+                expect(ws2812.init).to.have.been.calledWith(numberOfLeds);
             });
             it('Should render two colours', () => {
                 expect(ws2812.render).to.have.been.called;
@@ -161,6 +160,14 @@ describe('Light Strip', () => {
             });
             it('Should reset the ws2812', () => {
                 expect(ws2812.reset).to.have.been.called;
+            });
+            describe('and setting pattern again', () => {
+                beforeEach(() => {
+                    sut.setPattern([new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)]);
+                });
+                it('Should initialise strip', () => {
+                    expect(ws2812.init).to.have.been.calledWith(numberOfLeds);
+                });
             });
         });
     });
