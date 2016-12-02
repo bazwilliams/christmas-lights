@@ -72,9 +72,12 @@ function LightStrip(numberOfLeds) {
     }
 
     this.reset = () => {
-        this.clearAnimation();
-        ws281x.reset();
-        emitter.emit('reset');
+        if (initialised) {
+            this.clearAnimation();
+            ws281x.reset();
+            emitter.emit('reset');
+            initialised = false;
+        }
     };
 
     this.clearAnimation = () => {
