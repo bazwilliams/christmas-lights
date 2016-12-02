@@ -31,7 +31,7 @@ describe('Light Strip', () => {
         mockery.deregisterAll();
         mockery.disable();
     });
-    describe('When creating and initialising', () => {
+    describe('When creating', () => {
         let sut;
         beforeEach(() => {
             sut = new LightStrip(numberOfLeds);
@@ -52,6 +52,25 @@ describe('Light Strip', () => {
                 expect(renderedData[1]).to.be.eql(0xff33b2);
                 expect(renderedData[2]).to.be.eql(0x000000);
                 expect(renderedData[3]).to.be.eql(0x000000);
+            });
+            describe('and we set another pattern', () => {
+                beforeEach(() => {
+                    ws2812.init.reset();
+                    sut.setPattern([new Colour(0.0, 0.0, 0.0)]);
+                });
+                it('Should not initialise strip again', () => {
+                    expect(ws2812.init).not.to.have.been.called;
+                });
+            });
+            describe('and we reset twice', () => {
+                beforeEach(() => {
+                    ws2812.init.reset();
+                    sut.reset();
+                    sut.reset();
+                });
+                it('Should reset the ws2812 once', () => {
+                    expect(ws2812.reset).to.have.been.calledOnce;
+                });
             });
         });
         describe('when setting pattern using object', () => {
@@ -152,22 +171,6 @@ describe('Light Strip', () => {
             });
             it('Should render the colour from the pattern generator', () => {
                 expect(ws2812.render).to.have.been.called;
-            });
-        });
-        describe('when reset', () => {
-            beforeEach(() => {
-                sut.reset();
-            });
-            it('Should reset the ws2812', () => {
-                expect(ws2812.reset).to.have.been.called;
-            });
-            describe('and setting pattern again', () => {
-                beforeEach(() => {
-                    sut.setPattern([new Colour(0.3, 0.6, 1), new Colour(1, 0.2, 0.7)]);
-                });
-                it('Should initialise strip', () => {
-                    expect(ws2812.init).to.have.been.calledWith(numberOfLeds);
-                });
             });
         });
     });

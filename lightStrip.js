@@ -40,6 +40,7 @@ function LightStrip(numberOfLeds) {
             }
             if (!initialised) {
                 ws281x.init(numberOfLeds);
+                initialised = true;
             }
             ws281x.render(colours);
             ws281x.setBrightness(24);
