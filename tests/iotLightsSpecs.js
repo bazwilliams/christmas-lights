@@ -16,6 +16,7 @@ describe('AWS Iot Interface', () => {
                 register: sinon.spy((id, options, callback) => {
                             callback();
                         }),
+                unregister: sinon.spy(),
                 get: sinon.stub().returns("clientToken"),
                 on: (eventName, callback) => eventHandlers[eventName] = callback,
                 update: sinon.spy()
@@ -163,11 +164,13 @@ describe('AWS Iot Interface', () => {
                 beforeEach(() => {
                     eventHandlers.foreignStateChange('testThing', 'delete', {});
                 });
-                it('Should reset lightstrip', () => {
-                    expect(lightstrip.reset).to.have.been.called;
-                });
-                it('Should update thing shadow with an off settings', () => {
+                //See https://github.com/aws/aws-iot-device-sdk-js/issues/68
+                xit('Should update thing shadow with an off settings', () => {
                     expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'off' }, desired: null}});
+                });
+                it('Should unregister the device and reregister', () => {
+                    expect(mockThing.unregister).to.have.been.called;
+                    expect(mockThing.register).to.have.been.called;
                 });
             });
         });
