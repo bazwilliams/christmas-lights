@@ -64,16 +64,6 @@ function init(christmasLights) {
         }
     }
 
-    function register() {
-        thingShadows.register(`${config.iotThingClientId}`, {}, () => {
-            fetchThingShadow();
-        });
-    }
-
-    function unregister() {
-        thingShadows.unregister(`${config.iotThingClientId}`);
-    }
-
     thingShadows.on('delta', (thingName, stateObject) => {
         updateLocalState(stateObject.state);
         updateThingShadow();
@@ -93,15 +83,9 @@ function init(christmasLights) {
         }
     });
 
-    thingShadows.on('foreignStateChange', (thingName, operation, stateObject) => {
-        if (operation === 'delete') {
-            unregister();
-            register();
-            createThingShadow();
-        }
+    thingShadows.register(`${config.iotThingClientId}`, {}, () => {
+        fetchThingShadow();
     });
-
-    register();
 }
 
 module.exports = {
