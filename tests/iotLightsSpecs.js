@@ -165,9 +165,9 @@ describe('AWS Iot Interface', () => {
                     eventHandlers.foreignStateChange('testThing', 'delete', {});
                 });
                 //See https://github.com/aws/aws-iot-device-sdk-js/issues/68
-                xit('Should update thing shadow with an off settings', () => {
-                    expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'off' }, desired: null}});
-                });
+                //it('Should update thing shadow with an off settings', () => {
+                //    expect(mockThing.update).to.have.been.calledWith('testThing', { state: { reported: { animation: 'off' }, desired: null}});
+                //});
                 it('Should unregister the device and reregister', () => {
                     expect(mockThing.unregister).to.have.been.called;
                     expect(mockThing.register).to.have.been.called;

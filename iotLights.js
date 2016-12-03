@@ -97,6 +97,7 @@ function init(christmasLights) {
         if (operation === 'delete') {
             unregister();
             register();
+            createThingShadow();
         }
     });
 
