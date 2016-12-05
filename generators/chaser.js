@@ -3,11 +3,15 @@
 const Repeat = require('../strategies/repeat');
 const Shift = require('../strategies/shift');
 
-function* patternGenerator() {
+function* patternGenerator(initialFrame) {
+    yield {
+        frame: initialFrame.frame,
+        repeat: initialFrame.repeat
+    };
     let index = 0;
     while (true) {
         let pattern = [
-            { strategy: Repeat(5)},
+            { strategy: Repeat(5) },
             { strategy: Shift() }
         ];
         yield pattern[index];

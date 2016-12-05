@@ -57,8 +57,7 @@ function init(christmasLights) {
         if (localState.animation && localState.animation !== 'off' && Array.isArray(localState.colours)) {
             if (dirty) {
                 christmasLights.clearAnimation();
-                christmasLights.setPattern(convert(localState));
-                christmasLights.setAnimation(chaserPattern(), config.renderDelay);
+                christmasLights.setAnimation(chaserPattern(convert(localState)), config.renderDelay);
             }
         } else {
             christmasLights.reset();
