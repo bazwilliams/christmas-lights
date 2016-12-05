@@ -1,9 +1,9 @@
 "use strict";
 
 const Repeat = require('../strategies/repeat');
-const Shift = require('../strategies/shift');
+const Colour = require('../Colour');
 
-function* chaser(initialFrame) {
+function* blink(initialFrame) {
     yield {
         frame: initialFrame.frame,
         repeat: initialFrame.repeat
@@ -11,12 +11,14 @@ function* chaser(initialFrame) {
     let index = 0;
     while (true) {
         let pattern = [
+            { frame: initialFrame.frame, repeat: initialFrame.repeat},
             { strategy: Repeat(5) },
-            { strategy: Shift() }
+            { frame: [ new Colour("black") ], repeat: true},
+            { strategy: Repeat(5) }
         ];
         yield pattern[index];
         index = (index + 1) % pattern.length;
     }
 }
 
-module.exports = chaser;
+module.exports = blink;

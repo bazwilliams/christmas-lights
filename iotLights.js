@@ -3,7 +3,11 @@
 const config = require('./config');
 const awsIot = require('aws-iot-device-sdk');
 const Colour = require('./colour');
-const chaserPattern = require('./generators/chaser');
+
+const animations = {
+    "chase": require('./generators/chaser'),
+    "blink": require('./generators/blink')
+}
 
 const thingShadows = awsIot.thingShadow({
     keyPath: config.iotThingKeyPath,
@@ -49,7 +53,7 @@ function init(christmasLights) {
                 localState.repeat = state.repeat;
                 dirty = true;
             }
-            if (state.animation) {
+            if (state.animation === 'off' || state.animation && animations[state.animation]) {
                 localState.animation = state.animation;
                 dirty = true;
             }
@@ -57,7 +61,7 @@ function init(christmasLights) {
         if (localState.animation && localState.animation !== 'off' && Array.isArray(localState.colours)) {
             if (dirty) {
                 christmasLights.clearAnimation();
-                christmasLights.setAnimation(chaserPattern(convert(localState)), config.renderDelay);
+                christmasLights.setAnimation(animations[localState.animation](convert(localState)), config.renderDelay);
             }
         } else {
             christmasLights.reset();
@@ -78,7 +82,7 @@ function init(christmasLights) {
                 updateLocalState(stateObject.state.desired);
                 updateThingShadow();
             } else {
-                console.err(`${thingName}: ${stat}: ${clientToken} ${JSON.stringify(stateObject)}`);
+                console.error(`${thingName}: ${stat}: ${clientToken} ${JSON.stringify(stateObject)}`);
             }
         }
     });
