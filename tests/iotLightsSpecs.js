@@ -43,6 +43,7 @@ describe('AWS Iot Interface', () => {
         let lightstrip;
         beforeEach(() => {
             lightstrip = {
+                clearAnimation: sinon.spy(),
                 setPattern: sinon.spy(),
                 setAnimation: sinon.spy(),
                 reset: sinon.spy()
@@ -93,6 +94,9 @@ describe('AWS Iot Interface', () => {
                     };
                     eventHandlers.delta('testThing', deltaDocument);
                 });
+                it('Should clear any existing animation', () => {
+                    expect(lightstrip.clearAnimation).to.have.been.called;
+                });
                 it('Should set the state of the lightStrip', () => {
                     expect(lightstrip.setPattern).to.have.been.called;
                     expect(lightstrip.setPattern.args[0][0].frame[0].getUIntValue()).to.be.eql(0xFFFF00);
@@ -133,6 +137,9 @@ describe('AWS Iot Interface', () => {
                 };
                 eventHandlers.status('testThing', 'accepted', 'clientToken', shadowDocument);
             });
+            it('Should clear any existing animation', () => {
+                expect(lightstrip.clearAnimation).to.have.been.called;
+            });
             it('Should set the state of the lightStrip', () => {
                 expect(lightstrip.setPattern).to.have.been.called;
                 expect(lightstrip.setPattern.args[0][0].frame[0].getUIntValue()).to.be.eql(0xFF0000);
@@ -150,6 +157,9 @@ describe('AWS Iot Interface', () => {
                         }
                     };
                     eventHandlers.delta('testThing', deltaDocument);
+                });
+                it('Should clear any existing animation', () => {
+                    expect(lightstrip.clearAnimation).to.have.been.called;
                 });
                 it('Should set the state of the lightStrip', () => {
                     expect(lightstrip.setPattern).to.have.been.called;
@@ -192,6 +202,9 @@ describe('AWS Iot Interface', () => {
                 };
                 eventHandlers.status('testThing', 'accepted', 'clientToken', shadowDocument);
             });
+            it('Should clear any existing animation', () => {
+                expect(lightstrip.clearAnimation).to.have.been.called;
+            });
             it('Should set the state of the lightStrip', () => {
                 expect(lightstrip.setPattern).to.have.been.calledTwice;
                 expect(lightstrip.setPattern.args[1][0].frame[0].getUIntValue()).to.be.eql(0x0000FF);
@@ -217,6 +230,9 @@ describe('AWS Iot Interface', () => {
                     }
                 };
                 eventHandlers.status('testThing', 'accepted', 'clientToken', shadowDocument);
+            });
+            it('Should clear any existing animation', () => {
+                expect(lightstrip.clearAnimation).to.have.been.called;
             });
             it('Should set the state of the lightStrip', () => {
                 expect(lightstrip.setPattern).to.have.been.calledTwice;
