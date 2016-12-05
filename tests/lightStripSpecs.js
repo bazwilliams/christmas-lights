@@ -161,7 +161,7 @@ describe('Light Strip', () => {
                     yield pattern;
                 }
                 sut.setAnimation(patternGeneratorFunc(), 10);
-                sut.on('render', () => {
+                sut.once('render', () => {
                     sut.reset();
                     done();
                 });
@@ -171,6 +171,32 @@ describe('Light Strip', () => {
             });
             it('Should render the colour from the pattern generator', () => {
                 expect(ws2812.render).to.have.been.called;
+            });
+            describe('then reset and set another animation', (done) => {
+                let pattern2, patternGenerator2Func, generator2Called;
+                beforeEach((done) => {
+                    ws2812.render.reset();
+                    sut.reset();
+                    pattern2 = {
+                        frame: [ new Colour(1,1,1) ],
+                        repeat: true
+                    };
+                    patternGenerator2Func = function* testGenerator() {
+                        generator2Called = true;
+                        yield pattern2;
+                    }
+                    sut.setAnimation(patternGenerator2Func(), 10);
+                    sut.once('render', () => {
+                        sut.reset();
+                        done();
+                    });
+                });
+                it('Should call the provided pattern generator func', () => {
+                    expect(generator2Called).to.be.true;
+                });
+                it('Should render the colour from the pattern generator', () => {
+                    expect(ws2812.render).to.have.been.called;
+                });
             });
         });
     });
