@@ -54,13 +54,12 @@ function init(christmasLights) {
                 dirty = true;
             }
         }
-        if (localState.animation && localState.animation !== 'off' && Array.isArray(localState.colours)) {
-            if (dirty) {
-                christmasLights.setPattern(convert(localState));
-                christmasLights.setAnimation(chaserPattern(), config.renderDelay);
-            }
-        } else {
+        if (localState.animation && localState.animation === 'off') {
             christmasLights.reset();
+        } 
+        if (dirty && localState.colours && Array.isArray(localState.colours)) {
+            christmasLights.setPattern(convert(localState));
+            christmasLights.setAnimation(chaserPattern(), config.renderDelay);
         }
     }
 

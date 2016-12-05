@@ -85,6 +85,8 @@ function LightStrip(numberOfLeds) {
         clearInterval(bufferDataInterval);
         clearInterval(renderInterval);
         framebuffer.length = 0;
+        bufferDataInterval = void 0;
+        renderInterval = void 0;
     };
 
     this.setAnimation = (patternGenerator, delay) => {
