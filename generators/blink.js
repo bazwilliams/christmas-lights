@@ -1,7 +1,7 @@
 "use strict";
 
 const Repeat = require('../strategies/repeat');
-const Colour = require('../Colour');
+const Colour = require('../colour');
 
 function* blink(initialFrame) {
     yield {
