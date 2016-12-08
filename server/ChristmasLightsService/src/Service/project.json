@@ -1,9 +1,13 @@
 {
   "version": "1.0.0-*",
-  "dependencies": {
-    "Amazon.Lambda.Core": "1.0.0",
-    "AWSSDK.IoT": "3.3.1.2"
-  },
+    "dependencies": {
+        "Amazon.Lambda.Core": "1.0.0",
+        "AWSSDK.IoTData": "3.3.0.4",
+        "Domain": "1.0.0-*",
+        "Microsoft.Extensions.Configuration": "1.1.0",
+        "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.0",
+        "Newtonsoft.Json": "9.0.1"
+    },
   "frameworks": {
     "netcoreapp1.0": {
       "dependencies": {

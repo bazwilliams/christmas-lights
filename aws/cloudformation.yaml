@@ -7,6 +7,7 @@ Parameters:
         Type: String
 
 Resources:
+
     Thing:
         Type: "AWS::IoT::Thing"
         Properties:
@@ -25,7 +26,7 @@ Resources:
             PolicyName: !Join [ "-", [ !Ref ThingName, "policy" ] ]
             PolicyDocument:
                 Version: "2012-10-17"
-                Statement:
+                Statement: 
                     -
                         Effect: "Allow"
                         Action: "iot:Connect"

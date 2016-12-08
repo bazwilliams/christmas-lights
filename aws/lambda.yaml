@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+
+    LambdaExecutionRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    -
+                        Effect: "Allow"
+                        Principal:
+                            Service: "lambda.amazonaws.com"
+                        Action: "sts:AssumeRole"
+            Policies:
+                -
+                    PolicyName: "UpdateThingShadow"
+                    PolicyDocument:
+                        Version: "2012-10-17"
+                        Statement:
+                            -
+                                Effect: "Allow"
+                                Action: "iot:UpdateThingShadow"
+                                Resource: "arn:aws:iot:eu-west-1:545349016803:thing/it-christmas-tree"
+                            -
+                                Effect: "Allow"
+                                Action: "iot:GetThingShadow"
+                                Resource: "arn:aws:iot:eu-west-1:545349016803:thing/it-christmas-tree"
+
+    Lambda:
+        Type: "AWS::Lambda::Function"
+        Properties: 
+            FunctionName: "ChristmasTreeControl"
+            Environment:
+                Variables:
+                    ThingName: "it-christmas-tree"
+                    IotServiceUrl: "https://a2hat5hhrf2ift.iot.eu-west-1.amazonaws.com"
+            Handler: Service::Linn.ChristmasLights.Service.LambdaHandler::Handler
+            Role: !GetAtt LambdaExecutionRole.Arn
+            Code:
+                S3Bucket: "linn.lambdas"
+                S3Key: "it-christmas-tree.zip"
+            Runtime: "dotnetcore1.0"
+            Timeout: 10
