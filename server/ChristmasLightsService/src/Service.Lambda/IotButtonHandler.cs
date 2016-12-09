@@ -30,22 +30,36 @@
 
         public void Handler(Stream inputStream, ILambdaContext context)
         {
-            context.Logger.LogLine($"Invocation");
+            context.Logger.LogLine("Started");
             var iotButtonEvent = Utils.Bind<IotButtonEvent>(inputStream);
 
-            context.Logger.LogLine($"Button {iotButtonEvent.SerialNumber}: Battery Voltatge {iotButtonEvent.BatteryVoltage}; Click Type {iotButtonEvent.ClickType}");
+            context.Logger.LogLine($"Button {iotButtonEvent.SerialNumber}: Battery Voltage {iotButtonEvent.BatteryVoltage}; Click Type {iotButtonEvent.ClickType}");
 
+            bool success;
             switch (iotButtonEvent.ClickType)
             {
                 case IotButtonEvent.SingleClick:
-                    this.christmasTreeService.CycleAnimation();
+                    context.Logger.LogLine("Cycling animation");
+                    success = this.christmasTreeService.CycleAnimation().Result;
+                    if (!success)
+                    {
+                        throw new ThingShadowUpdateFailedException();
+                    }
+
                     break;
                 case IotButtonEvent.DoubleClick:
-                    this.christmasTreeService.Off();
+                    success = this.christmasTreeService.Off().Result;
+                    if (!success)
+                    {
+                        throw new ThingShadowUpdateFailedException();
+                    }
+
                     break;
                 default:
-                    throw new UnsupportedButtonPressException("Unsupported click type");
+                    throw new UnsupportedButtonPressException($"{iotButtonEvent.ClickType}");
             }
+
+            context.Logger.LogLine("Complete");
         }
     }
 }

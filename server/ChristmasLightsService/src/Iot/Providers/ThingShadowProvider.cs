@@ -1,5 +1,7 @@
 ﻿namespace Linn.ChristmasLights.Iot.Providers
 {
+    using System;
+    using System.Net;
     using System.Threading.Tasks;
 
     using Amazon.IotData;
@@ -22,7 +24,7 @@
             this.client = new AmazonIotDataClient(config["IotServiceUrl"]);
         }
         
-        public async void UpdateThingShadow(ThingShadow<T> thingShadow)
+        public async Task<bool> UpdateThingShadow(ThingShadow<T> thingShadow)
         {
             var updateThingShadowRequest = new UpdateThingShadowRequest()
             {
@@ -30,7 +32,8 @@
                 Payload = Utils.ToJsonMemoryStream(thingShadow)
             };
 
-            await this.client.UpdateThingShadowAsync(updateThingShadowRequest);
+            var result = await this.client.UpdateThingShadowAsync(updateThingShadowRequest);
+            return result.HttpStatusCode == HttpStatusCode.OK;
         }
 
         public async Task<ThingShadow<T>> GetThingShadow()

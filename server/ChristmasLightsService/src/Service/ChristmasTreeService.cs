@@ -1,5 +1,7 @@
 ﻿namespace Linn.ChristmasLights.Service
 {
+    using System.Threading.Tasks;
+
     using Linn.ChristmasLights.Domain;
     using Linn.ChristmasLights.Iot.Models;
     using Linn.ChristmasLights.Iot.Providers;
@@ -13,22 +15,22 @@
             this.thingShadowProvider = thingShadowProvider;
         }
 
-        public void CycleAnimation()
+        public async Task<bool> CycleAnimation()
         {
-            var thingShadow = this.thingShadowProvider.GetThingShadow().Result;
+            var thingShadow = await this.thingShadowProvider.GetThingShadow();
             
             CycleAnimationState(thingShadow);
             
-            this.thingShadowProvider.UpdateThingShadow(thingShadow);
+            return await this.thingShadowProvider.UpdateThingShadow(thingShadow);
         }
 
-        public void Off()
+        public async Task<bool> Off()
         {
-            var thingShadow = this.thingShadowProvider.GetThingShadow().Result;
+            var thingShadow = await this.thingShadowProvider.GetThingShadow();
 
             SwitchOff(thingShadow);
 
-            this.thingShadowProvider.UpdateThingShadow(thingShadow);
+            return await this.thingShadowProvider.UpdateThingShadow(thingShadow);
         }
 
         private static void CycleAnimationState(ThingShadow<ChristmasTreeState> thingShadow)
