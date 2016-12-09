@@ -34,26 +34,16 @@
             var iotButtonEvent = Utils.Bind<IotButtonEvent>(inputStream);
 
             context.Logger.LogLine($"Button {iotButtonEvent.SerialNumber}: Battery Voltage {iotButtonEvent.BatteryVoltage}; Click Type {iotButtonEvent.ClickType}");
-
-            bool success;
+            
             switch (iotButtonEvent.ClickType)
             {
                 case IotButtonEvent.SingleClick:
                     context.Logger.LogLine("Cycling animation");
-                    success = this.christmasTreeService.CycleAnimation().Result;
-                    if (!success)
-                    {
-                        throw new ThingShadowUpdateFailedException();
-                    }
-
+                    this.christmasTreeService.CycleAnimation().Wait();
                     break;
                 case IotButtonEvent.DoubleClick:
-                    success = this.christmasTreeService.Off().Result;
-                    if (!success)
-                    {
-                        throw new ThingShadowUpdateFailedException();
-                    }
-
+                    context.Logger.LogLine("Switching off");
+                    this.christmasTreeService.Off().Wait();
                     break;
                 default:
                     throw new UnsupportedButtonPressException($"{iotButtonEvent.ClickType}");

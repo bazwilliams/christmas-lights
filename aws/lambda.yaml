@@ -1,5 +1,11 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
+Parameters:
+    IotServiceUrl:
+        Type: String
+    ThingName:
+        Type: String
+
 Resources:
 
     LambdaExecutionRole:
@@ -22,20 +28,20 @@ Resources:
                             -
                                 Effect: "Allow"
                                 Action: "iot:UpdateThingShadow"
-                                Resource: "arn:aws:iot:eu-west-1:545349016803:thing/it-christmas-tree"
+                                Resource: !Join [ "", !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", "thing/" ] ], !Ref "ThingName" ]
                             -
                                 Effect: "Allow"
                                 Action: "iot:GetThingShadow"
-                                Resource: "arn:aws:iot:eu-west-1:545349016803:thing/it-christmas-tree"
+                                Resource: !Join [ "", !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", "thing/" ] ], !Ref "ThingName" ]
 
     Lambda:
         Type: "AWS::Lambda::Function"
         Properties: 
-            FunctionName: "ChristmasTreeControl"
+            FunctionName: "ChristmasTreeButton"
             Environment:
                 Variables:
-                    ThingName: "it-christmas-tree"
-                    IotServiceUrl: "https://a2hat5hhrf2ift.iot.eu-west-1.amazonaws.com"
+                    ThingName: !Ref ThingName
+                    IotServiceUrl: !Ref IotServiceUrl
             Handler: Service.Lambda::Linn.ChristmasLights.Service.Lambda.IotButtonHandler::Handler
             Role: !GetAtt LambdaExecutionRole.Arn
             Code:

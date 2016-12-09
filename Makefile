@@ -1,6 +1,21 @@
+CERTIFICATE_ARN=./certs/arn.txt
+ROOT_CA=./certs/root-CA.crt
+
 PACKAGE := build/release/it-christmas-tree.zip
 
 .PHONY: test clean build
+
+${ROOT_CA}:
+	curl -o ${ROOT_CA} https://www.symantec.com/content/en/us/enterprise/verisign/roots/VeriSign-Class%203-Public-Primary-Certification-Authority-G5.pem
+
+${CERTIFICATE_ARN}:
+	aws iot create-keys-and-certificate \
+		--set-as-active \
+		--certificate-pem-outfile=./certs/certificate.pem.crt \
+		--public-key-outfile=./certs/public.pem.key \
+		--private-key-outfile=./certs/private.pem.key > ./certs/certificateAndKeys.json
+
+	node -e "console.log(require('./certs/certificateAndKeys.json').certificateArn)" > ${CERTIFICATE_ARN}
 
 test:
 	npm test

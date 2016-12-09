@@ -7,6 +7,7 @@
     using Amazon.IotData;
     using Amazon.IotData.Model;
 
+    using Linn.ChristmasLights.Domain.Exceptions;
     using Linn.ChristmasLights.Iot.Models;
 
     using Microsoft.Extensions.Configuration;
@@ -24,7 +25,7 @@
             this.client = new AmazonIotDataClient(config["IotServiceUrl"]);
         }
         
-        public async Task<bool> UpdateThingShadow(ThingShadow<T> thingShadow)
+        public async Task UpdateThingShadow(ThingShadow<T> thingShadow)
         {
             var updateThingShadowRequest = new UpdateThingShadowRequest()
             {
@@ -33,7 +34,11 @@
             };
 
             var result = await this.client.UpdateThingShadowAsync(updateThingShadowRequest);
-            return result.HttpStatusCode == HttpStatusCode.OK;
+
+            if (result.HttpStatusCode != HttpStatusCode.OK)
+            {
+                throw new ThingShadowUpdateFailedException($"Received HTTP {result.HttpStatusCode}");
+            }
         }
 
         public async Task<ThingShadow<T>> GetThingShadow()
