@@ -1,4 +1,4 @@
-﻿namespace Linn.ChristmasLights.Service.Models
+﻿namespace Linn.ChristmasLights.Iot.Models
 {
     public class State<T>
     {

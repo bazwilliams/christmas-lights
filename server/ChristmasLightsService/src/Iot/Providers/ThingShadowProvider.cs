@@ -1,11 +1,11 @@
-﻿namespace Linn.ChristmasLights.Service.Providers
+﻿namespace Linn.ChristmasLights.Iot.Providers
 {
     using System.Threading.Tasks;
 
     using Amazon.IotData;
     using Amazon.IotData.Model;
 
-    using Linn.ChristmasLights.Service.Models;
+    using Linn.ChristmasLights.Iot.Models;
 
     using Microsoft.Extensions.Configuration;
 

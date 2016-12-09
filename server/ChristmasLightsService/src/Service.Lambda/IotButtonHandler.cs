@@ -4,10 +4,12 @@
 
     using Amazon.Lambda.Core;
 
+    using Linn.ChristmasLights.Domain;
+    using Linn.ChristmasLights.Domain.Exceptions;
+    using Linn.ChristmasLights.Iot;
+    using Linn.ChristmasLights.Iot.Providers;
     using Linn.ChristmasLights.Service;
     using Linn.ChristmasLights.Service.Lambda.Models;
-    using Linn.ChristmasLights.Service.Providers;
-    using Linn.ChristmasTreeLights.Domain;
 
     using Microsoft.Extensions.Configuration;
 
@@ -28,16 +30,21 @@
 
         public void Handler(Stream inputStream, ILambdaContext context)
         {
+            context.Logger.LogLine($"Invocation");
             var iotButtonEvent = Utils.Bind<IotButtonEvent>(inputStream);
 
-            if (iotButtonEvent.ClickType == IotButtonEvent.SingleClick)
-            {
-                this.christmasTreeService.CycleAnimation();
-            }
+            context.Logger.LogLine($"Button {iotButtonEvent.SerialNumber}: Battery Voltatge {iotButtonEvent.BatteryVoltage}; Click Type {iotButtonEvent.ClickType}");
 
-            if (iotButtonEvent.ClickType == IotButtonEvent.DoubleClick)
+            switch (iotButtonEvent.ClickType)
             {
-                this.christmasTreeService.Off();
+                case IotButtonEvent.SingleClick:
+                    this.christmasTreeService.CycleAnimation();
+                    break;
+                case IotButtonEvent.DoubleClick:
+                    this.christmasTreeService.Off();
+                    break;
+                default:
+                    throw new UnsupportedButtonPressException("Unsupported click type");
             }
         }
     }

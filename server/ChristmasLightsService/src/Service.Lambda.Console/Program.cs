@@ -4,11 +4,13 @@
 
     using Amazon.Lambda.Core;
 
+    using Linn.ChristmasLights.Iot;
+
     public class Program
     {
         public static void Main(string[] args)
         {
-            var input = Utils.ToJsonMemoryStream(new { ClickType = "SINGLE" });
+            var input = Utils.ToJsonMemoryStream(new { clickType = "SINGLE" });
 
             var lambda = new IotButtonHandler();
             lambda.Handler(input, new AppContext(new ConsoleLogger()));

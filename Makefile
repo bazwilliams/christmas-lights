@@ -10,7 +10,7 @@ clean:
 
 build:
 	dotnet restore
-	dotnet publish server/ChristmasLightsService/src/Service/
+	dotnet publish server/ChristmasLightsService/src/Service.Lambda/
 
 ${PACKAGE}: clean build
 	grunt zip:lambda

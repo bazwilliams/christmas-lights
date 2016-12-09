@@ -1,4 +1,4 @@
-﻿namespace Linn.ChristmasTreeLights.Domain
+﻿namespace Linn.ChristmasLights.Domain
 {
     public class ChristmasTreeState
     {

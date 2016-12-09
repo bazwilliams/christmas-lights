@@ -4,8 +4,8 @@ module.exports = function (grunt) {
   grunt.initConfig({
     zip: {
       lambda: {
-        cwd: 'server/ChristmasLightsService/src/Service/bin/Debug/netcoreapp1.0/publish/',
-        src: ['./server/ChristmasLightsService/src/Service/bin/Debug/netcoreapp1.0/publish/*'],
+        cwd: 'server/ChristmasLightsService/src/Service.Lambda/bin/Debug/netcoreapp1.0/publish/',
+        src: ['./server/ChristmasLightsService/src/Service.Lambda/bin/Debug/netcoreapp1.0/publish/*'],
 	dest: 'build/release/it-christmas-tree.zip'
       }
     }

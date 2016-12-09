@@ -36,7 +36,7 @@ Resources:
                 Variables:
                     ThingName: "it-christmas-tree"
                     IotServiceUrl: "https://a2hat5hhrf2ift.iot.eu-west-1.amazonaws.com"
-            Handler: Service::Linn.ChristmasLights.Service.LambdaHandler::Handler
+            Handler: Service.Lambda::Linn.ChristmasLights.Service.Lambda.IotButtonHandler::Handler
             Role: !GetAtt LambdaExecutionRole.Arn
             Code:
                 S3Bucket: "linn.lambdas"

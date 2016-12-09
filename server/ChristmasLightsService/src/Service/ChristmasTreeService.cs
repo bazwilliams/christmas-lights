@@ -1,8 +1,8 @@
 ﻿namespace Linn.ChristmasLights.Service
 {
-    using Linn.ChristmasLights.Service.Models;
-    using Linn.ChristmasLights.Service.Providers;
-    using Linn.ChristmasTreeLights.Domain;
+    using Linn.ChristmasLights.Domain;
+    using Linn.ChristmasLights.Iot.Models;
+    using Linn.ChristmasLights.Iot.Providers;
 
     public class ChristmasTreeService
     {

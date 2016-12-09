@@ -6,8 +6,8 @@
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>d4552534-b3f3-42ba-bddf-1fe77660e47f</ProjectGuid>
-    <RootNamespace>Linn.ChristmasLights.Domain</RootNamespace>
+    <ProjectGuid>c02f0387-3141-42bb-84b9-5156349af3c8</ProjectGuid>
+    <RootNamespace>Linn.ChristmasLights.Iot</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>

@@ -1,8 +1,8 @@
-﻿namespace Linn.ChristmasLights.Service
+﻿namespace Linn.ChristmasLights.Iot
 {
     using System.IO;
     using System.Text;
-    
+
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
@@ -10,7 +10,11 @@
     {
         public static MemoryStream ToJsonMemoryStream(object o)
         {
-            var serialiser = new JsonSerializer() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
+            var serialiser = new JsonSerializer()
+                                 {
+                                     DefaultValueHandling = DefaultValueHandling.Ignore,
+                                     ContractResolver = new CamelCasePropertyNamesContractResolver()
+                                 };
 
             var stringWriter = new StringWriter();
             using (var writer = new JsonTextWriter(stringWriter))
@@ -24,13 +28,14 @@
 
         public static T Bind<T>(Stream stream)
         {
-            var serialiser = new JsonSerializer();
+            var serialiser = new JsonSerializer() { ContractResolver = new CamelCasePropertyNamesContractResolver() };
 
             T thingShadow;
             using (var sr = new StreamReader(stream))
             {
                 thingShadow = serialiser.Deserialize<T>(new JsonTextReader(sr));
             }
+
             return thingShadow;
         }
     }
