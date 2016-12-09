@@ -2,11 +2,11 @@
 {
     public class ChristmasTreeState
     {
-        private const string AnimationBlink = "blink";
+        public const string AnimationBlink = "blink";
 
-        private const string AnimationOff = "off";
+        public const string AnimationOff = "off";
 
-        private const string AnimationChase = "chase";
+        public const string AnimationChase = "chase";
 
         public string Animation { get; set; }
 
@@ -22,6 +22,8 @@
                     return AnimationBlink;
                 case AnimationBlink:
                     return AnimationChase;
+                case AnimationChase:
+                    return AnimationBlink;
                 default:
                     return AnimationOff;
             }

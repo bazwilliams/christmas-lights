@@ -1,17 +1,16 @@
-﻿namespace Service.Console
+﻿namespace Linn.ChristmasLights.Service.Lambda.Console
 {
     using System;
 
     using Amazon.Lambda.Core;
 
-    using Linn.ChristmasLights.Service;
-    
     public class Program
     {
         public static void Main(string[] args)
         {
-            var lambda = new LambdaHandler();
-            lambda.Handler(null, new AppContext(new ConsoleLogger()));
+            var input = Utils.ToJsonMemoryStream(new { });
+            var lambda = new IotButtonHandler();
+            lambda.Handler(input, new AppContext(new ConsoleLogger()));
             Console.ReadLine();
         }
 
