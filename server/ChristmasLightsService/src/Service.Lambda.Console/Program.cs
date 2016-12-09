@@ -8,7 +8,8 @@
     {
         public static void Main(string[] args)
         {
-            var input = Utils.ToJsonMemoryStream(new { });
+            var input = Utils.ToJsonMemoryStream(new { ClickType = "SINGLE" });
+
             var lambda = new IotButtonHandler();
             lambda.Handler(input, new AppContext(new ConsoleLogger()));
             Console.ReadLine();

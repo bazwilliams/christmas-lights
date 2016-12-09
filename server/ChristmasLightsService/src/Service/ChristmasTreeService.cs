@@ -1,52 +1,48 @@
 ﻿namespace Linn.ChristmasLights.Service
 {
-    using System.IO;
-    using System.Text;
-
-    using Amazon.IotData;
-    using Amazon.IotData.Model;
-
     using Linn.ChristmasLights.Service.Models;
+    using Linn.ChristmasLights.Service.Providers;
     using Linn.ChristmasTreeLights.Domain;
-
-    using Microsoft.Extensions.Configuration;
 
     public class ChristmasTreeService
     {
+        private readonly ThingShadowProvider<ChristmasTreeState> thingShadowProvider;
 
+        public ChristmasTreeService(ThingShadowProvider<ChristmasTreeState> thingShadowProvider)
+        {
+            this.thingShadowProvider = thingShadowProvider;
+        }
 
         public void CycleAnimation()
         {
-            var thingShadow = this.GetThingShadow();
+            var thingShadow = this.thingShadowProvider.GetThingShadow().Result;
             
             CycleAnimationState(thingShadow);
             
-            this.UpdateThingShadow(thingShadow);
+            this.thingShadowProvider.UpdateThingShadow(thingShadow);
         }
 
-        public void ToggleOff()
+        public void Off()
         {
-            var thingShadow = this.GetThingShadow();
+            var thingShadow = this.thingShadowProvider.GetThingShadow().Result;
 
             SwitchOff(thingShadow);
 
-            this.UpdateThingShadow(thingShadow);
+            this.thingShadowProvider.UpdateThingShadow(thingShadow);
         }
 
-        private static void CycleAnimationState(ChristmasTreeThingShadow thingShadow)
+        private static void CycleAnimationState(ThingShadow<ChristmasTreeState> thingShadow)
         {
             thingShadow.State.Desired.Animation = thingShadow.State.Reported.NextAnimationState();
             thingShadow.State.Desired.Repeat = thingShadow.State.Reported.Repeat;
             thingShadow.State.Desired.Colours = thingShadow.State.Reported.Colours;
         }
 
-        private static void SwitchOff(ChristmasTreeThingShadow thingShadow)
+        private static void SwitchOff(ThingShadow<ChristmasTreeState> thingShadow)
         {
             thingShadow.State.Desired.Animation = ChristmasTreeState.AnimationOff;
             thingShadow.State.Desired.Repeat = thingShadow.State.Reported.Repeat;
             thingShadow.State.Desired.Colours = thingShadow.State.Reported.Colours;
         }
-
-
     }
 }

@@ -6,6 +6,8 @@
 
     using Linn.ChristmasLights.Service;
     using Linn.ChristmasLights.Service.Lambda.Models;
+    using Linn.ChristmasLights.Service.Providers;
+    using Linn.ChristmasTreeLights.Domain;
 
     using Microsoft.Extensions.Configuration;
 
@@ -19,14 +21,24 @@
             configurationBuilder.AddEnvironmentVariables();
             var config = configurationBuilder.Build();
 
-            this.christmasTreeService = new ChristmasTreeService(config);
+            var thingShadowProvider = new ThingShadowProvider<ChristmasTreeState>(config);
+
+            this.christmasTreeService = new ChristmasTreeService(thingShadowProvider);
         }
 
         public void Handler(Stream inputStream, ILambdaContext context)
         {
             var iotButtonEvent = Utils.Bind<IotButtonEvent>(inputStream);
-            
-            this.christmasTreeService.CycleAnimationState();
+
+            if (iotButtonEvent.ClickType == IotButtonEvent.SingleClick)
+            {
+                this.christmasTreeService.CycleAnimation();
+            }
+
+            if (iotButtonEvent.ClickType == IotButtonEvent.DoubleClick)
+            {
+                this.christmasTreeService.Off();
+            }
         }
     }
 }
