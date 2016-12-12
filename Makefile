@@ -1,5 +1,6 @@
-CERTIFICATE_ARN=./certs/arn.txt
+CERTIFICATE_ARN=`node -e "console.log(require('./certs/certificateAndKeys.json').certificateArn)"`
 ROOT_CA=./certs/root-CA.crt
+CLOUDFORMATION_PREFIX=it-christmas-tree
 
 PACKAGE := build/release/it-christmas-tree.zip
 
@@ -14,8 +15,6 @@ ${CERTIFICATE_ARN}:
 		--certificate-pem-outfile=./certs/certificate.pem.crt \
 		--public-key-outfile=./certs/public.pem.key \
 		--private-key-outfile=./certs/private.pem.key > ./certs/certificateAndKeys.json
-
-	node -e "console.log(require('./certs/certificateAndKeys.json').certificateArn)" > ${CERTIFICATE_ARN}
 
 test:
 	npm test
@@ -34,9 +33,21 @@ upload: ${PACKAGE}
 	aws s3 cp ${PACKAGE} s3://linn.lambdas/it-christmas-tree.zip
 
 deploy-iot:
-	aws cloudformation create-stack --stack-name it-christmas-tree --template-body file://./aws/cloudformation.yaml --parameters ParameterKey=ThingName,ParameterValue=it-christmas-tree ParameterKey=Certificate,ParameterValue=${CERTIFICATE_ARN}
+	aws cloudformation create-stack \
+		--stack-name ${CLOUDFORMATION_PREFIX}-iot \
+		--template-body file://./aws/iot.yaml \
+		--parameters \
+			ParameterKey=ThingName,ParameterValue=${THING_NAME} \
+			ParameterKey=Certificate,ParameterValue=${CERTIFICATE_ARN}
 
 deploy-lambda:
-	aws cloudformation create-stack --stack-name it-christmas-tree-lambda --template-body file://./aws/lambda.yaml --capabilities=CAPABILITY_IAM
+	aws cloudformation create-stack \
+		--stack-name ${CLOUDFORMATION_PREFIX}-lambda \
+		--template-body file://./aws/lambda.yaml \
+		--capabilities=CAPABILITY_IAM \
+		--parameters \
+			ParameterKey=ThingName,ParameterValue=${THING_NAME} \
+			ParameterKey=IotServiceUrl,ParameterValue=${IOT_SERVICE_URL} \
+			ParameterKey=IotButton,ParameterValue=${IOT_BUTTON}
 
 deploy: deploy-iot deploy-lambda
