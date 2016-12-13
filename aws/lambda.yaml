@@ -63,4 +63,4 @@ Resources:
                 S3Bucket: "linn.lambdas"
                 S3Key: "it-christmas-tree.zip"
             Runtime: "dotnetcore1.0"
-            Timeout: 5
+            Timeout: 15
