@@ -1,0 +1,66 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Parameters:
+    IotServiceUrl:
+        Type: String
+    IotButton:
+        Type: String
+    ThingName:
+        Type: String
+
+Resources:
+
+    LambdaExecutionRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                    -
+                        Effect: "Allow"
+                        Principal:
+                            Service: "lambda.amazonaws.com"
+                        Action: "sts:AssumeRole"
+            Policies:
+                -
+                    PolicyName: "UpdateThingShadow"
+                    PolicyDocument:
+                        Version: "2012-10-17"
+                        Statement:
+                            -
+                                Effect: "Allow"
+                                Action: "iot:UpdateThingShadow"
+                                Resource: !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "thing", !Ref "ThingName" ] ] ] ]
+                            -
+                                Effect: "Allow"
+                                Action: "iot:GetThingShadow"
+                                Resource: !Join [ ":", [ "arn:aws:iot", !Ref "AWS::Region", !Ref "AWS::AccountId", !Join [ "/", [ "thing", !Ref "ThingName" ] ] ] ]
+
+    ButtonRule:
+        Type: "AWS::IoT::TopicRule"
+        Properties:
+            RuleName: "ChristmasTreeButtonRule"
+            TopicRulePayload:
+                Actions:
+                    -
+                        Lambda:
+                            FunctionArn: !GetAtt Lambda.Arn
+                Description: "Invoke ChistmasTreeButton lambda"
+                RuleDisabled: "false"
+                Sql: !Join [ "", [ "SELECT * FROM 'iotbutton/", !Ref "IotButton" ,"'" ] ]
+
+    Lambda:
+        Type: "AWS::Lambda::Function"
+        Properties: 
+            FunctionName: "ChristmasTreeButton"
+            Environment:
+                Variables:
+                    ThingName: !Ref ThingName
+                    IotServiceUrl: !Ref IotServiceUrl
+            Handler: Service.Lambda::Linn.ChristmasLights.Service.Lambda.IotButtonHandler::Handler
+            Role: !GetAtt LambdaExecutionRole.Arn
+            Code:
+                S3Bucket: "linn.lambdas"
+                S3Key: "it-christmas-tree.zip"
+            Runtime: "dotnetcore1.0"
+            Timeout: 15
