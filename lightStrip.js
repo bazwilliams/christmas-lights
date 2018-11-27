@@ -13,10 +13,10 @@ function LightStrip(numberOfLeds) {
     let renderInterval;
     let bufferDataInterval;
     let emitter = this;
-    let initialised = false;
+    let channel;
 
     function createFrame(colourArray, repeat) {
-        let frame = null;
+        let frame = void 0;
         if (colourArray && colourArray.length) {
             frame = new Array(numberOfLeds);
             for(let i=0; i < numberOfLeds; i++) {
@@ -34,16 +34,13 @@ function LightStrip(numberOfLeds) {
         let frame = framebuffer.shift();
         if (frame) {
             pixelState = frame;
-            let colours = new Uint32Array(numberOfLeds);
-            for(let i=0; i < numberOfLeds; i++) {
-                colours[i] = frame[i].getUIntValue();
+            if (!channel) {
+                channel = ws281x(numberOfLeds, { stripType: 'sk6812-grbw', brightness: 24 });
             }
-            if (!initialised) {
-                ws281x.init(numberOfLeds);
-                initialised = true;
+            for(let i=0; i < channel.count; i++) {
+                channel.array[i] = frame[i].getUIntValue();
             }
-            ws281x.render(colours);
-            ws281x.setBrightness(24);
+            ws281x.render();
             emitter.emit('render', frame);
         }
     }
@@ -73,11 +70,15 @@ function LightStrip(numberOfLeds) {
     }
 
     this.reset = () => {
-        if (initialised) {
+        if (channel) {
             this.clearAnimation();
-            ws281x.reset();
+            try {
+                ws281x.reset();
+            } catch (err) {
+                console.error(err);
+            }
             emitter.emit('reset');
-            initialised = false;
+            channel = void 0;
         }
     };
 
